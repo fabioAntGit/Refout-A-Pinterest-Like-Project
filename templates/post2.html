@@ -4,7 +4,7 @@
 
 <head>
     {% csrf_token %}
-    <title>Refout - {{user_profile.user.username}}</title>
+    <title>Home</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -110,9 +110,11 @@
                         {% for comment in comments %}
                         <div class="comment" data-comment-id="{{ comment.id }}">
                             <p>{{ comment.user.user.username }}: {{ comment.text }}
+                                {% if comment.user.user.username == user.username %}
                                 <a class="delete-button" onclick="deleteComment('{{ comment.id }}')">
                                     <img style="max-width: 20px; max-height: 20px;" src="{% static 'assets/images/icons/delete.svg' %}">
                                 </a>
+                                {% endif %}
                             </p>
                         </div>
                         {% endfor %}
@@ -316,14 +318,15 @@
                     success: function(data) {
                         // update comments container with new comment
 
-                        var commentHtml = '<div class="comment" data-comment-id="' + data.id + '">' +
-                            '<p>' + data.user + ': ' + data.text +
-                            '<a class="delete-button" onclick="deleteComment(' + data.id + ')">' +
-                            '<img style="max-width: 20px; max-height: 20px;" src="' + deleteIconURL + '">' +
-                            '</a>' +
-                            '</p>' +
-                            '</div>';
-                        $(".comment-container").append(commentHtml);
+                        var commentHtml = '<div class="comment" data-comment-id="' + data.comment_id + '">' +
+                        '<p>' + data.user + ': ' + data.text +
+                        '<a class="delete-button" onclick="deleteComment(\'' + data.comment_id + '\')">' +
+                        '<img style="max-width: 20px; max-height: 20px;" src="' + deleteIconURL + '">' +
+                        '</a>' +
+                        '</p>' +
+                        '</div>';
+
+                        $(".comment-container").prepend(commentHtml);
                         form.trigger('reset');
                         $('button[type="submit"]').attr('disabled', 'disabled'); // disable submit button after successful submission
                     },

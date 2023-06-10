@@ -299,6 +299,13 @@ def profile(request, pk):
     user = request.user
     
 
+    
+    # Get the list of users who are following the current account
+    user_following_list = [following_count.user for following_count in FollowersCount.objects.filter(follower=user_profile)]
+    
+    # Get the list of users who are followers of the current account
+    user_followers_list = FollowersCount.objects.filter(user=user_profile)
+
     user_object_visit = User.objects.get(username=pk)
     user_profile_visit = Profile.objects.get(user=user_object_visit)
 
@@ -331,6 +338,8 @@ def profile(request, pk):
         'text': text,
         'user_followers': user_followers,
         'user_following': user_following,
+        'user_following_list': user_following_list,
+        'user_followers_list': user_followers_list,
     }
     return render(request, 'profile2.html', context)
 
@@ -537,23 +546,27 @@ def add_comment(request, post_id):
         if text:
             comment = Comment.objects.create(user=request.user.profile, post=post, text=text)
             
-            # Create a notification
-            notification = Notification.objects.create(
-                recipient=post.user,
-                sender=request.user.profile,
-                notification_type='comment',
-                post=post
-            )
+            if request.user != post.user.user:  # Check if the commenting user is not the post owner
+                # Create a notification
+                notification = Notification.objects.create(
+                    recipient=post.user,
+                    sender=request.user.profile,
+                    notification_type='comment',
+                    post=post,
+                    comment=comment  # Associate the comment with the notification
+                )
             
             return JsonResponse({
                 'user': comment.user.user.username,
                 'text': comment.text,
-                'post_user': post.user.user.username
+                'post_user': post.user.user.username,
+                'comment_id': comment.id
             })
         
         return HttpResponseBadRequest("Invalid comment text")
     
     return HttpResponseBadRequest("Invalid request method")
+
 
 
 
@@ -668,6 +681,20 @@ def delete_comment(request):
         comment_id = request.POST.get('comment_id')
         try:
             comment = Comment.objects.get(id=comment_id, user=request.user.profile)
+            comment.delete()
+            return JsonResponse({'success': True})
+        except Comment.DoesNotExist:
+            pass
+    
+    return JsonResponse({'success': False})
+
+def delete_comment(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+        comment_id = request.POST.get('comment_id')
+        try:
+            comment = Comment.objects.get(id=comment_id, user=request.user.profile)
+            # Check for associated notifications and delete them
+            Notification.objects.filter(comment=comment).delete()
             comment.delete()
             return JsonResponse({'success': True})
         except Comment.DoesNotExist:

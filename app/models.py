@@ -19,6 +19,37 @@ class Profile(models.Model):
     bio = models.TextField(blank=True)
 
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.profile_picture:
+            profile_path = self.profile_picture.path
+
+            # Open the image using Pillow
+            img2 = Image.open(profile_path)
+
+            width_profile = 200
+            height_profile = 200
+            resized_profile_img = img2.resize((width_profile, height_profile), resample=Image.NEAREST)
+
+
+            # Save the resized image, overwriting the original file
+            resized_profile_img.save(profile_path)
+
+        if self.profile_banner:
+            banner_path = self.profile_banner.path
+
+            # Open the image using Pillow
+            img = Image.open(banner_path)
+
+            width_banner = 1546
+            height_banner = 423
+            resized_banner_img = img.resize((width_banner, height_banner), resample=Image.NEAREST)
+
+            # Save the resized image, overwriting the original file
+            resized_banner_img.save(banner_path)
+
+
     def get_posts_no (self):
         return self.posts.all().count()
     
@@ -177,6 +208,7 @@ class Notification(models.Model):
     notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, blank=True, null=True)
+    comment= models.ForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True)
     read = models.BooleanField(default=False)
 
 

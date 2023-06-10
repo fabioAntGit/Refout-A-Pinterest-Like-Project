@@ -4,7 +4,7 @@
 <html lang="en">
 
 <head>
-    <title>Profile - {{user_profile.user.username}}</title>
+    <title>Profile</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -16,15 +16,25 @@
         .banner-section .content {
             background-image: url({{user_profile.profile_banner.url}});
             background-position: top;
-            background-size: 100% 47%;
+            background-size: 100% 60%;
             background-repeat: no-repeat;
-            padding: 45px 20px 9px 20px;
+            padding: 100px 20px 9px 20px;
             text-align: center;
         }
         
         .header-profile {
             margin-left: auto;
         }
+        
+        .modal-body {
+            min-height: 400px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .modal-content{
+            border-radius: 30px;
+        }
+      
     </style>
 </head>
 
@@ -49,11 +59,31 @@
                     <div class="code-container">
                         {% csrf_token %} {% if user_followers == 0 or user_followers == 1 %}
                         <div class="text">
-                            <strong>{{ user_followers }}</strong> follower</div>&nbsp; &nbsp;{% else %}
-                        <div class="text"><strong>{{ user_followers }} </strong>followers</div>&nbsp;&nbsp; {% endif %}
-                        <div class="text"><strong>{{ user_following }} </strong>following</div>&nbsp;&nbsp;
-                        <div class="text"><strong>{{ user_profile.get_posts_no }}</strong> Posts</div>&nbsp;&nbsp;
-                        <div class="text"><strong>{{ user_profile.get_likes_recieved_no }}</strong> likes</div>{% if request.user.is_authenticated and user_profile.user == request.user %}
+                            {% if user_followers > 0 %}
+                            <a style="cursor: default;" class="text followersBtnEnabled" id="followersBtn"><strong>{{ user_followers }}</strong> follower</a>
+                            {% else %}
+                            <a style="cursor: default;" class="text followersBtnDisabled" id="followersBtn"><strong>{{ user_followers }}</strong> follower</a>
+                            {% endif %}
+                        </div>&nbsp;&nbsp;
+                        {% else %}
+                        <div class="text">
+                            {% if user_followers > 0 %}
+                            <a style="cursor: default;" class="text followersBtnEnabled" id="followersBtn"><strong>{{ user_followers }}</strong> followers</a>
+                            {% else %}
+                            <a style="cursor: default;" class="text followersBtnDisabled" id="followersBtn"><strong>{{ user_followers }}</strong> followers</a>
+                            {% endif %}
+                        </div>&nbsp;&nbsp;
+                        {% endif %}
+                        
+                        <div class="text">
+                            {% if user_following > 0 %}
+                            <a style="cursor: default;" class="text followingBtnEnabled" id="followingBtn"><strong>{{ user_following }}</strong> following</a>
+                            {% else %}
+                            <a style="cursor: default;" class="text followingBtnDisabled" id="followingBtn"><strong>{{ user_following }}</strong> following</a>
+                            {% endif %}
+                        </div>&nbsp;&nbsp;
+                        <div style="cursor: default;" class="text"><strong>{{ user_profile.get_posts_no }}</strong> Posts</div>&nbsp;&nbsp;
+                        <div style="cursor: default;" class="text"><strong>{{ user_profile.get_likes_recieved_no }}</strong> likes</div>{% if request.user.is_authenticated and user_profile.user == request.user %}
                     </div>
 
 
@@ -97,12 +127,87 @@
         </div>
     </div>
     </div>
+    <!-- Following Modal -->
+    <div class="modal fade" id="followingModal" tabindex="-1" role="dialog" aria-labelledby="followingModalLabel"aria-hidden="true">    
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="followingModalLabel">Following</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <!-- Display the list of users who are following the current account -->
+            {% for following_user in user_following_list %}
+            <a href="{% url 'app:profile'  following_user.user.username %}">
+            <div class="user" style="border-bottom: 1px solid #B38B5A; padding: 10px">
+                <div class="profile-picture">
+                    <img src="{{ following_user.profile_picture.url }}" alt="Profile Picture" style="border-radius: 50%; max-height: 40px; max-width: 40px;">
+                </div>&nbsp; &nbsp;
+                <div class="username">
+                    {{ following_user.user.username }}
+                </div>
+            </div>
+            </a>
+            {% endfor %}
+            </div>
+        </div>
+        </div>
+    </div>
+  
+  <!-- Follower Modal -->
+  <div class="modal fade" id="followersModal" tabindex="-1" role="dialog" aria-labelledby="followersModalLabel" aria-hidden="true">    
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="followersModalLabel">Followers</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Display the list of users who are followers of the current account -->
+          {% for follower in user_followers_list %}
+          <a href="{% url 'app:profile' follower.follower.user.username %}">
+          <div class="user" style="border-bottom: 1px solid #B38B5A; padding: 10px">
+            <div class="profile-picture">
+                <img src="{{ follower.follower.profile_picture.url }}" alt="Profile Picture" style="border-radius: 50%; max-height: 40px; max-width: 40px; ">
+            </div> &nbsp; &nbsp;
+            <div class="username">
+                {{ follower.follower.user.username }}
+            </div>
+        </div>
+        </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="assets/js/script.js"></script>
+    <script>
+        $(document).ready(function () {
+          // Check if the "View All" buttons are enabled and bind click event handlers accordingly
+          if ($('.followersBtnEnabled').length) {
+            $('#followersBtn').click(function () {
+              $('#followersModal').modal('show');
+            });
+          }
+      
+          if ($('.followingBtnEnabled').length) {
+            $('#followingBtn').click(function () {
+              $('#followingModal').modal('show');
+            });
+          }
+        });
+      </script>
 </body>
 
 </html>
