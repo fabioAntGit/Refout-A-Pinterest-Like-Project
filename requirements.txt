@@ -5,6 +5,7 @@ django-environ==0.10.0
 django-extensions==3.2.3
 django-volt-admin==1.0.2
 Pillow==9.5.0
-psycopg2==2.9.6
 sqlparse==0.4.4
 typing_extensions==4.6.3
+gunicorn==20.1.0
+psycopg2==2.9.6
