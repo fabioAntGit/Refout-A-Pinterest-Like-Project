@@ -37,7 +37,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    "volt",
+    'admin_volt.apps.AdminVoltConfig',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -138,6 +138,9 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 LOGIN_URL = "/signin"
+
+LOGIN_REDIRECT_URL = '/'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 GRAPH_MODELS = {
     "all_applications": True,
