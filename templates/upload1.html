@@ -1,0 +1,256 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Upload</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <style>
+        .reference-container {
+            height: 250px;
+            /* Set the desired height for the scrollable container */
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+            border: none;
+            /* Optional: Add border or customize as needed */
+            padding: 10px;
+            /* Optional: Add padding or customize as needed */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="header-logo">
+                <a href="/"><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
+            </div>
+            <div class="header-profile">
+                <a href="#"><img src="{% static 'assets/images/profile.png' %}" class="profile-img"></a>
+            </div>
+        </div>
+        <div class="upload-section">
+
+            <form method="POST" action="upload" enctype="multipart/form-data" onsubmit="updateHiddenField(); return validateImageSize(this);">
+                {% csrf_token %}
+                <label class="upload-label before-upload">
+                    <img src="{% static 'assets/images/icons/upload.svg' %}" alt=""> <br>
+                    Click here to upload your image
+                    <div id="size-error" style="display: none; color: rgb(255, 52, 52);">The minimum image size allowed is 450x700.</div>
+                    <input type="file" id="image" name="image" accept="image/*" size="60" onchange="readURL(this);" class="d-none" required>
+                </label>
+
+                <div class="row mx-auto w-100 after-upload" style="display: none;">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-12 mt-3 text-center">
+                        <img id="blah" src="" />
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-12 mt-3">
+
+                        <form method="POST" action="upload" enctype="multipart/form-data" onsubmit="updateHiddenField()">
+                            {% csrf_token %}
+                            <textarea name="description" rows="7" class="form-control" placeholder="Description.."></textarea>
+                            <div class="form-heading">References</div>
+                            <div class="clone-to reference-container">
+                                <div class="clone-from">
+                                    <div class="form-main">
+                                        <div class="form-block">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <select name="category" class="form-control" required>
+                                                        <option value="" disabled selected>Choose a category</option>
+                                                        <option value="pants">Pants</option>
+                                                        <option value="t_shirt">T-Shirt</option>
+                                                        <option value="jacket">Jacket</option>
+                                                        <option value="hat">Hat</option>
+                                                        <option value="shorts">Shorts</option>
+                                                        <option value="shirt">Shirt</option>
+                                                        <option value="belt">Belt</option>
+                                                        <option value="shoes">Shoes</option>
+                                                        <option value="watch">Watch</option>
+                                                        <option value="necklace">Necklace</option>
+                                                        <option value="ring">Ring</option>
+                                                        <option value="earring">Earring</option>
+                                                        <option value="bag">Bag</option>
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-remove-reference" style="display: none;" onclick="removeReference(this)">
+                                                            <img src="{% static 'assets/images/icons/close.svg' %}" alt="Remove">
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="text" name="descriptions" class="form-control" placeholder="Reference description.." required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Add a second reference input here -->
+                                <div class="clone-from">
+                                    <div class="form-main">
+                                        <div class="form-block">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <select name="category" class="form-control" required>
+                                                        <option value="" disabled selected>Choose a category</option>
+                                                        <option value="pants">Pants</option>
+                                                        <option value="t_shirt">T-Shirt</option>
+                                                        <option value="jacket">Jacket</option>
+                                                        <option value="hat">Hat</option>
+                                                        <option value="shorts">Shorts</option>
+                                                        <option value="shirt">Shirt</option>
+                                                        <option value="belt">Belt</option>
+                                                        <option value="shoes">Shoes</option>
+                                                        <option value="watch">Watch</option>
+                                                        <option value="necklace">Necklace</option>
+                                                        <option value="ring">Ring</option>
+                                                        <option value="earring">Earring</option>
+                                                        <option value="bag">Bag</option>
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-remove-reference" style="display: none;" onclick="removeReference(this)">
+                                                            <img src="{% static 'assets/images/icons/close.svg' %}" alt="Remove">
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="text" name="descriptions" class="form-control" placeholder="Reference description.." required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End of second reference input -->
+                            </div>
+                            <hr>
+                            <div class="buttons text-center">
+                                <a class="btn btn-main text-white add-more-btn">MORE REFERENCES</a><br><br>
+                                <input class="btn btn-main text-white" type="submit" value="UPLOAD"></input>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="footer-section">
+            <div class="footer">
+                <a href="#" class="footer-search">
+                    <div class="img"><img src="{% static 'assets/images/icons/search.svg' %}"></div>
+                </a>
+                <a href="#" class="footer-plus">
+                    <div class="img"><img src="{% static 'assets/images/icons/plus.svg' %}"></div>
+                </a>
+                <a href="#" class="footer-bell">
+                    <div class="img"><img src="{% static 'assets/images/icons/bell.svg' %}"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        $('.after-upload').hide();
+
+        var referenceCounter = 1; // Start with 1 reference (the first reference is visible by default)
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    var img = new Image();
+
+                    img.onload = function() {
+                        if (img.width >= 450 && img.height >= 700) {
+                            $('#size-error').hide();
+                            $('#blah').attr('src', e.target.result);
+                            $('.before-upload').hide();
+                            $('.after-upload').show();
+                        } else {
+                            $('#size-error').show();
+                            $('.after-upload').hide();
+                        }
+                    };
+
+                    img.src = e.target.result;
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $('.add-more-btn').click(function() {
+            if (referenceCounter < 6) {
+                var clone = $('.clone-from .form-main').first().clone('.form-block'); // Clone only the first .form-main element
+                clone.find('select[name="category"]').val('');
+                clone.find('input[name="descriptions"]').val('');
+                clone.find('.btn-remove-reference').show();
+                $('.reference-container').append(clone);
+
+                referenceCounter++;
+
+                if (referenceCounter >= 5) {
+                    $('.add-more-btn').hide();
+                }
+            }
+        });
+
+
+        function updateHiddenField() {
+            var imageInput = document.getElementById('image-input');
+            var hiddenField = document.getElementById('hidden-image-field');
+
+            if (imageInput.files.length > 0) {
+                var formData = new FormData();
+                formData.append('image', imageInput.files[0]);
+                hiddenField.value = imageInput.files[0].name;
+                console.log('working');
+                // Rest of your code to submit the form or perform further actions
+            } else {
+                // Handle the case when no image is selected
+                alert('Please select an image.');
+                console.log('no working');
+                event.preventDefault(); // Prevent form submission
+            }
+        }
+
+        function validateImageSize(form) {
+            var imageInput = form.elements['image'];
+            var img = new Image();
+
+            img.onload = function() {
+                if (img.width >= 450 && img.height >= 700) {
+                    $('#size-error').hide();
+                    return true; // Proceed with form submission
+                } else {
+                    $('#size-error').show();
+                    return false; // Cancel form submission
+                }
+            };
+
+            img.src = URL.createObjectURL(imageInput.files[0]);
+        }
+
+        function removeReference(btn) {
+            var referenceContainer = $(btn).closest('.form-main');
+            referenceContainer.remove();
+
+            referenceCounter--;
+
+            if (referenceCounter < 6) {
+                $('.add-more-btn').show();
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,104 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Upload</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            });
+
+            $('.del').click(function(event) {
+                event.preventDefault();
+                var notificationId = $(this).data('notification-id');
+                var notificationElement = $(event.target).closest('.notification');
+                $.ajax({
+                    url: $(this).data('url'),
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'ok') {
+                            notificationElement.remove();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="header-logo">
+                <a href="/"><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
+            </div>
+            <div class="header-profile">
+                <a href="#"><img src="{% static 'assets/images/profile.png' %}" class="profile-img"></a>
+            </div>
+        </div>
+        <div class="notification-section">
+            <div class="notification-container">
+                {% if notifications %} {% for notification in notifications %}
+                <div class="notification">
+                    <div class="notification-content">
+                        <p class="notification-message">
+                            {{ notification.sender }} {{ notification.notification_type }} {% if notification.notification_type == 'like' %} liked your post {% elif notification.notification_type == 'comment' %} commented on your post {% else %} started following you {% endif %}
+                            {% if notification.post %}
+                            <a href="{% url 'app:post_detail' notification.post.id %}">
+                                <img src="{{ notification.post.image.url }}" width="60" height="60" alt="">
+                            </a>
+                            {% endif %}
+                        </p>
+                        <i class="del fas fa-times notification-icon" data-url="{% url 'app:delete_notification' notification.id %}" data-notification-id="{{ notification.id }}"></i>
+                    </div>
+                </div>
+                {% endfor %} {% else %}
+                <p class="no_notification">You don't have any notifications.</p>
+                {% endif %}
+            </div>
+        </div>
+
+
+
+    </div>
+    </div>
+    <div class="footer-section">
+        <div class="footer">
+            <a href="#" class="footer-search">
+                <div class="img"><img src="{% static 'assets/images/icons/search.svg' %}"></div>
+            </a>
+            <a href="#" class="footer-plus">
+                <div class="img"><img src="{% static 'assets/images/icons/plus.svg' %}"></div>
+            </a>
+            <a href="#" class="footer-bell">
+                <div class="img"><img src="{% static 'assets/images/icons/bell.svg' %}"></div>
+            </a>
+        </div>
+    </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

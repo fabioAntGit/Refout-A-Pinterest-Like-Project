@@ -1,0 +1,72 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Upload</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'assets/js/search.js' %}" defer></script>
+
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="header-logo">
+                <a href=""><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
+            </div>
+            <div class="header-profile">
+                <a href="#"><img src="{% static 'assets/images/profile.png' %}" class="profile-img"></a>
+            </div>
+        </div>
+        <div class="search-section">
+
+            <form id="search-form" autocomplete="off">
+                {% csrf_token %}
+                <input class="search-bar" type="text" id="search-input" placeholder="Search users...">
+            </form>
+
+
+            <div class="user-container">
+                <div class="results-container">
+                    <div class="notification-box not-visible" id="results-box">
+
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+        </div>
+        <div class="footer-section">
+            <div class="footer">
+                <a href="#" class="footer-search">
+                    <div class="img"><img src="{% static 'assets/images/icons/search.svg' %}"></div>
+                </a>
+                <a href="#" class="footer-plus">
+                    <div class="img"><img src="{% static 'assets/images/icons/plus.svg' %}"></div>
+                </a>
+                <a href="" class="footer-bell">
+                    <div class="img"><img src="{% static 'assets/images/icons/bell.svg' %}"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

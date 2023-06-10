@@ -1,0 +1,92 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Profile</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <style>
+        .banner-section .content {
+            background-image: url({{user_profile.profile_banner.url}});
+            background-position: top;
+            background-size: 100% 47%;
+            background-repeat: no-repeat;
+            padding: 45px 20px 9px 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header justify-content-center">
+            <div class="header-logo">
+                <a href=""><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
+            </div>
+        </div>
+        <div class="banner-section">
+            <div class="content">
+
+                <div class="pro-img"><img src="{{user_profile.profile_picture.url}}"></div>
+                <form method="POST" action="/follow">
+                    <h5>{{user_profile.user.username}}</h5>
+                    {% csrf_token %} {% if user_followers == 0 or user_followers == 1 %}
+                    <div class="text">{{ user_followers }} follower</div>
+                    {% else %}
+                    <div class="text">{{ user_followers }} followers</div>
+                    {% endif %}
+                    <div class="text">{{ user_following }} following</div>
+                    <div class="text">{{ user_profile.get_posts_no }} Posts</div>
+                    <div class="text">{{ user_profile.get_likes_recieved_no }} likes</div>{% if request.user.is_authenticated and user_profile.user == request.user %}
+                    <div class="button"><a href="/Settings" class="btn btn-main">Settings</a></div>{% else %}
+                    <input type="hidden" name="follower" value="{{ request.user.profile.id }}">
+                    <input type="hidden" name="user" value="{{ user_profile.id }}">
+                    <input type="hidden" name="userurl" value="{{ user_profile }}">
+                    <button class="btn btn-main" type="submit" id="follow-button">{{ text }}</button> {% endif %}
+                </form>
+            </div>
+        </div>
+        <div class="contain-section">
+            <div class="row mx-auto w-100">
+                {% for post in user_profile.get_all_posts %}
+                <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+                    <div class="main-img">
+                        <div class="img">
+                            <a href="p/{{post.id}}"><img src="{{ post.image.url }}"></a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+        <div class="footer-section">
+            <div class="footer">
+                <a href="#" class="footer-search">
+                    <div class="img"><img src="{% static 'assets/images/icons/search.svg' %}"></div>
+                </a>
+                <a href="#" class="footer-plus">
+                    <div class="img"><img src="{% static 'assets/images/icons/plus.svg' %}"></div>
+                </a>
+                <a href="#" class="footer-bell">
+                    <div class="img"><img src="{% static 'assets/images/icons/bell.svg' %}"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>

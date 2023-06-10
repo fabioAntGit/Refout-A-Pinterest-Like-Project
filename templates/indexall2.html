@@ -1,0 +1,166 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Home</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="header-logo">
+                <a href=""><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
+            </div>
+            <div class="header-profile">
+                <a href="/profile/{{user_profile.user.username}}"><img src="{{user_profile.profile_picture.url}}" class="profile-img"></a>
+            </div>
+        </div>
+        <div class="contain-section" id="content-section">
+            <div class="fol-gal-all-section">
+                <a href="/" class="follow">follow</a>
+                <a href="#" class="gallery" id="gallery">
+                    <div class="img"><img src="{% static 'assets/images/icons/menu-gallery.svg' %}"></div>
+                </a>
+                <a href="" class="all">all</a>
+            </div>
+
+            <div class="home-content" id="post-container">
+                {% for post in posts %}
+                <div class="main-img">
+                    <div class="img">
+                        <a href="p/{{ post.id }}"><img src="{{ post.image.url }} " alt=" "></a>
+                        <div class="vector-badge">
+                            <a href="/profile/{{ post.user.user.username }}">{{ post.user.user.username }}</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="gallery-content" id="gallery-container" style="display: none;">
+                <div class="row mx-auto w-100">
+                    {% for post in posts %}
+                    <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+                        <div class="main-img">
+                            <div class="img">
+                                <a href="p/{{post.id}}"><img src="{{post.image.url}} " alt=" "></a>
+                                <div class="vector-badge">{{post.user}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div id="loading-indicator" class="text-center" style="display: none;">
+            <p>test</p>
+        </div>
+        <div class="footer-section">
+            <div class="footer">
+                <a href="/search" class="footer-search">
+                    <div class="img"><img src="{% static 'assets/images/icons/search.svg' %}"></div>
+                </a>
+                <a href="/upload" class="footer-plus">
+                    <div class="img"><img src="{% static 'assets/images/icons/plus.svg' %}"></div>
+                </a>
+                <a href="/notifications" class="footer-bell">
+                    <div class="img"><img src="{% static 'assets/images/icons/bell.svg' %}"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $("#gallery").click(function() {
+                $("#post-container").toggle();
+                $("#gallery-container").toggle();
+            });
+
+            var isLoading = false;
+            var offset = 12; // Initial offset, assuming the first 12 posts are already displayed
+            var limit = 16; // Number of posts to load per request
+
+            $(window).scroll(function() {
+                if (
+                    $(window).scrollTop() + $(window).height() >=
+                    $(document).height() - 100 &&
+                    !isLoading
+                ) {
+                    isLoading = true;
+                    $('#loading-indicator').show();
+
+                    $.ajax({
+                        url: '/load-more-posts/',
+                        data: {
+                            offset: offset,
+                            limit: limit
+                        },
+                        success: function(data) {
+                            $('#loading-indicator').hide();
+                            isLoading = false;
+
+                            if (data.length > 0) {
+                                var postContainer = $('#post-container');
+                                var galleryContainer = $('#gallery-container');
+
+                                data.forEach(function(post) {
+                                    var mainImgHtml = `
+                        <div class="main-img">
+                          <div class="img">
+                            <a href="p/${post.id}"><img src="${post.image_url}" alt=""></a>
+                            <div class="vector-badge">
+                              <a href="/profile/${post.username}">${post.username}</a>
+                            </div>
+                          </div>
+                        </div>
+                      `;
+
+                                    var colHtml = `
+                        <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+                          <div class="main-img">
+                            <div class="img">
+                              <a href="p/${post.id}"><img src="${post.image_url}" alt=""></a>
+                              <div class="vector-badge">
+                                <a href="/profile/${post.username}">${post.username}</a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      `;
+
+                                    postContainer.append(mainImgHtml);
+                                    galleryContainer.find('.row').append(colHtml);
+                                });
+
+                                offset += limit; // Update the offset based on the number of new posts loaded
+                            } else {
+                                // No more posts to load
+                                $(window).off('scroll');
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+
+
+
+
+</body>
+
+</html>

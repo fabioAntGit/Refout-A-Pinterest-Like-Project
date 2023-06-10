@@ -1,0 +1,312 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Home</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+
+</head>
+
+<body id="comment-page">
+    <div class="wrapper">
+        <div class="header">
+            <div class="header-logo">
+                <a href=""><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
+            </div>
+            <div class="header-profile">
+                <a href="#"><img src="{% static 'assets/images/profile.png' %}" class="profile-img"></a>
+            </div>
+        </div>
+        <div class="upload-section">
+            <div class="back-link">
+                <a href="#" onclick="goBack()"><img src="{% static 'assets/images/icons/back-link.svg' %}" alt=""></a>
+            </div>
+            <div class="row mx-auto w-100">
+                <div class="col-lg-6 col-md-6 col-sm-12 col-12 mt-3 text-center">
+                    <img id="blah" src="{{ post.image.url }}" />
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12 col-12 mt-3">
+                    <form action="#">
+                        <div class="right-side-header">
+                            <div class="left-side">
+                                <div class="top">
+                                    <img src="{{user_profile.profile_picture.url}}" alt="">
+                                </div>
+                                <div>
+                                    <a href="/profile/{{user_profile.user.username}}">
+                                        <div class="heading">@{{post.user}}</div>
+                                    </a>
+                                    <div class="text">{{post.created}}</div>
+                                </div>
+                            </div>
+                            <div>
+                                <!-- <a href="#" class="like-button" id="like-button-{{ post.id }}" value="{{ post.id }}" onclick="likePost('{{ post.id }}', this)" data-liked="{% if user_profile.id in post.likes.all %}true{% else %}false{% endif %}">
+                                    <img src="{% static 'assets/images/icons/heart.svg' %}" alt="">
+                                </a>
+                                &nbsp;
+                                <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span> -->
+                                <button class="like-button" id="like-button-{{ post.id }}" value="{{ post.id }}">
+                                    {% if request.user.profile in post.likes.all %}
+                                    <img src="{% static 'assets/images/icons/heartcomplete.svg' %}" alt="">
+                                    {% else %}
+                                    <img src="{% static 'assets/images/icons/heart.svg' %}" alt="">
+                                    {% endif %}
+                                    <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span>
+                                </button>
+
+                            </div>
+                        </div>
+                    </form>
+                    <div class="detail-dataaa">
+                        <div class="detail-dataaa">
+                            {% if post.description %} {{ post.description }} {% else %}
+                            <div class="no-description">No description</div>
+                            {% endif %}
+                        </div>
+                        {% if referencias %} {% for referencia in referencias %}
+                        <div class="text">
+                            <strong>{{ referencia.get_category_display }}:</strong> {% if referencia.link %}
+                            <a href="{{ referencia.link }}" target="_blank">{{ referencia.description }}</a> {% else %} {{ referencia.description }} {% endif %}
+                        </div>
+                        {% endfor %} {% endif %}
+
+
+                    </div>
+                    <div class="comment-container">
+                        {% for comment in comments %}
+                        <p>{{ comment.user.user.username }}: {{ comment.text }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <form id="comment-form" method="POST    " action="{% url 'app:add_comment' post.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <textarea name="text" id="comment-text" rows="2" class="form-control" placeholder="Type a comment.."></textarea>
+
+                        <div class="buttons d-flex justify-content-between align-items-center">
+                            <button class="btn btn-main" id="submit-button" type="submit">SUBMIT</button></form>
+                    <div class="comment-dropdown dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <img src="{% static 'assets/images/icons/three-dots.svg' %}">
+                                </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            {% if user_profile.user|stringformat:"s" == post.user|stringformat:"s" %}
+                            <a id="confirm-delete" class="dropdown-item" data-toggle="modal" data-target="#confirm-delete-modal">Delete</a> {% if not post.verify_references %}
+                            <a class="dropdown-item" data-toggle="modal" data-target="#verify-references-modal-{{ post.id }}">Verify References</a> {% endif %} {% endif %} {% if user_profile.user|stringformat:"s" != post.user|stringformat:"s" %}
+                            <a class="dropdown-item" data-toggle="modal" data-target="#commentModal">Report</a> {% endif %}
+                            <a class="dropdown-item" onclick="copyUrlToClipboard()">Copy</a>
+                        </div>
+                    </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                    </div>
+                    <form method="post" action="{% url 'app:report_post' post.id %}">
+                        <div class="modal-body">
+
+                            {% csrf_token %}
+                            <label for="category">Report category:</label></br>
+                            <select name="category" id="category" required>
+                                
+                                <option value="no_references">there are no references / Incorrect references</option>
+                                <option value="inappropriate">Inappropriate content</option>
+                            </select>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Report</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal" tabindex="-1" role="dialog" id="confirm-delete-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this post?
+                    </div>
+                    <div class="modal-footer">
+                        <form action="{% url 'app:delete_post' post.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="verify-references-modal-{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="verify-references-modal-label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="verify-references-modal-label">Verify References Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to verify the references for this post?
+                    </div>
+                    <div class="modal-footer">
+                        <form method="POST" action="{% url 'app:verify_references' post.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">Confirm</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-section ">
+            <div class="footer ">
+                <a href="# " class="footer-search ">
+                    <div class="img "><img src="{% static 'assets/images/icons/search.svg' %} "></div>
+                </a>
+                <a href="# " class="footer-plus ">
+                    <div class="img "><img src="{% static 'assets/images/icons/plus.svg' %} "></div>
+                </a>
+                <a href="# " class="footer-bell ">
+                    <div class="img "><img src="{% static 'assets/images/icons/bell.svg' %} "></div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js "></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js "></script>
+
+    <script>
+        $(document).on('click', '.like-button', function(e) {
+            e.preventDefault();
+            var postid = $(this).val();
+            var csrftoken = $('input[name=csrfmiddlewaretoken]').val();
+            var likeButton = $(this);
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "app:like" %}',
+                data: {
+                    postid: postid,
+                    csrfmiddlewaretoken: csrftoken,
+                    action: 'post'
+                },
+                success: function(json) {
+                    $('#like-count-' + postid).text(json.result);
+
+                    if (likeButton.find('img').attr('src') === '{% static "assets/images/icons/heartcomplete.svg" %}') {
+                        likeButton.find('img').attr('src', '{% static "assets/images/icons/heart.svg" %}');
+                    } else {
+                        likeButton.find('img').attr('src', '{% static "assets/images/icons/heartcomplete.svg" %}');
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    // handle error
+                }
+            });
+        });
+    </script>
+
+
+    <script>
+        function copyUrlToClipboard() {
+            var url = window.location.href;
+            navigator.clipboard.writeText(url)
+        }
+    </script>
+
+    <script>
+        function goBack() {
+            var referer = document.referrer;
+            window.location.href = referer;
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // Function to check if the textarea is empty
+            function isCommentEmpty() {
+                var comment = $.trim($('#comment-text').val());
+                return comment === '';
+            }
+
+            // Disable submit button on page load if textarea is empty
+            if (isCommentEmpty()) {
+                $('#submit-button').attr('disabled', 'disabled');
+            }
+
+
+
+            // Enable/disable submit button based on textarea content
+            $('#comment-text').on('input', function() {
+                if (isCommentEmpty()) {
+                    $('#submit-button').attr('disabled', 'disabled');
+                } else {
+                    $('#submit-button').removeAttr('disabled');
+                }
+            });
+
+            // Comment form submission
+            $("#comment-form").submit(function(event) {
+                event.preventDefault(); // prevent default form submit behavior
+                var form = $(this);
+                var formData = form.serialize(); // serialize form data
+                var url = form.attr('action');
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function(data) {
+                        // update comments container with new comment
+                        $(".comment-container").append("<p>" + data.user + ": " + data.text + "</p>");
+                        form.trigger('reset');
+                        $('button[type="submit"]').attr('disabled', 'disabled'); // disable submit button after successful submission
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error); // log any errors
+                    }
+                });
+            });
+
+            // Enable delete button in the modal
+            $('#confirm-delete-modal').on('shown.bs.modal', function() {
+                $('button[type="submit"]').removeAttr('disabled');
+            });
+
+            // Disable submit button when the modal is closed without deleting
+            $('#confirm-delete-modal').on('hidden.bs.modal', function() {
+                if (isCommentEmpty()) {
+                    $('button[type="submit"]').attr('disabled', 'disabled');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

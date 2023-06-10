@@ -1,0 +1,243 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Settings</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            });
+
+            $('.del').click(function(event) {
+                event.preventDefault();
+                var notificationId = $(this).data('notification-id');
+                var notificationElement = $(event.target).closest('.notification');
+                $.ajax({
+                    url: $(this).data('url'),
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'ok') {
+                            notificationElement.remove();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        function previewProfilePicture(event) {
+            console.log("test")
+            var input = event.target;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    document.getElementById('profile-picture-preview').src = e.target.result;
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function validateImageDimensions(event) {
+            console.log("test3")
+            var input = event.target;
+            if (input.files && input.files[0]) {
+                var img = new Image();
+
+                img.onload = function() {
+                    var maxWidth = 48;
+                    var maxHeight = 48;
+                    var veryWidth = 400
+                    var veryHeight = 400
+
+                    if (img.width > veryWidth || img.height > veryHeight) {
+                        alert("Please choose an image with dimensions within " + veryWidth + "x" + veryHeight);
+                        input.value = ""; // Reset the file input
+
+                    } else {
+                        if (img.width > maxWidth || img.height > maxHeight) {
+
+                            var canvas = document.createElement('canvas');
+                            var ctx = canvas.getContext('2d');
+
+                            var ratio = Math.min(maxWidth / img.width, maxHeight / img.height);
+                            var width = img.width * ratio;
+                            var height = img.height * ratio;
+
+                            canvas.width = width;
+                            canvas.height = height;
+
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            // Set the resized image as the preview
+                            document.getElementById('profile-picture-preview').src = canvas.toDataURL('image/jpeg');
+                        } else {
+                            // No resizing needed, show the original image as the preview
+                            document.getElementById('profile-picture-preview').src = URL.createObjectURL(input.files[0]);
+                        }
+                    }
+
+                };
+
+                img.src = URL.createObjectURL(input.files[0]);
+            }
+        }
+    </script>
+    <script>
+        function previewBannerImage(event) {
+            var input = event.target;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    document.getElementById('banner-image-preview').src = e.target.result;
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+    <script>
+        function validateImageDimensions(event, imageType) {
+            var input = event.target;
+            if (input.files && input.files[0]) {
+                var img = new Image();
+
+                img.onload = function() {
+                    var maxWidth = 1600;
+                    var maxHeight = 600;
+                    var veryWidth = 4000;
+                    var veryHeight = 2500;
+
+                    if (imageType === 'profile') {
+                        if (img.width > veryWidth || img.height > veryHeight) {
+                            alert("Please choose a banner image with dimensions within " + veryWidth + "x" + veryHeight);
+                            input.value = ""; // Reset the file input
+                        } else {
+                            if (img.width > maxWidth || img.height > maxHeight) {
+                                var canvas = document.createElement('canvas');
+                                var ctx = canvas.getContext('2d');
+
+                                var ratio = Math.min(maxWidth / img.width, maxHeight / img.height);
+                                var width = img.width * ratio;
+                                var height = img.height * ratio;
+
+                                canvas.width = width;
+                                canvas.height = height;
+
+                                ctx.drawImage(img, 0, 0, width, height);
+
+                                // Set the resized image as the preview
+                                document.getElementById('profile-picture-preview').src = canvas.toDataURL('image/jpeg');
+                            } else {
+                                // No resizing needed, show the original image as the preview
+                                document.getElementById('profile-picture-preview').src = URL.createObjectURL(input.files[0]);
+                            }
+                        }
+                    } else if (imageType === 'banner') {
+                        // Handle banner image dimensions validation here
+                        // Similar to the profile image validation code
+                    }
+                };
+
+                img.src = URL.createObjectURL(input.files[0]);
+            }
+        }
+    </script>
+
+
+
+
+
+
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="header-logo">
+                <a href=""><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
+            </div>
+            <div class="header-profile">
+                <a href="#"><img src="{{ user_profile.profile_picture.url }}" class="profile-img"></a>
+            </div>
+
+        </div>
+        <div class="settings-section">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="image-settings">
+                    <div class="profile">
+                        <img src="{{ user_profile.profile_picture.url }}" class="profile-img" id="profile-picture-preview" onclick="document.getElementById('image').click()">
+                        <p>Click on the image to change</p>
+                        <input type="file" name="image" id="image" style="display: none;" accept="image/jpeg, image/png" onchange="validateImageDimensions(event)"> {% if messages %} {% endif %}</div>
+                    <div class="banner"> <img src="{{ user_profile.profile_banner.url }}" id="banner-image-preview" onclick="document.getElementById('banner-image-input').click()">
+                        <p>Click on the image to change</p>
+                        <input type="file" name="banner_image" id="banner-image-input" style="display: none;" accept="image/jpeg, image/png" onchange="validateImageDimensions(event, 'banner')"> {% if messages %} {% endif %}</div>
+                    <div>
+                        <h6>Username:</h6>
+                        <input class="settings-input" type="text " id="username" name="username" value="{{ user.username }}">
+                        <h6>Biography:</h6>
+                        <input class="settings-input" type="text" id="bio" name="bio" value="{{ user_profile.bio|default:'' }}">
+                        <h6>First Name:</h6>
+                        <input class="settings-input" type="text" id="first_name" name="first_name" value="{{ user_profile.first_name|default:'' }}">
+                        <h6>Last Name:</h6>
+                        <input class="settings-input" type="text" id="last_name" name="last_name" value="{{ user_profile.last_name|default:'' }}">
+                        <h6>Email:</h6>
+                        <input class="settings-input" type="text" id="email" name="email" value="{{ user.email }}">
+                        <h6>Country:</h6>
+                        <input class="settings-input" type="text" id="country" name="country" value="{{ user_profile.country|default:'' }}">
+                        </br>
+                        </br>
+                    </div>
+                    {% for message in messages %} {{ message }}
+                    </br>{% endfor %}</br>
+                    </br>
+                    <button class="btn btn-main" type="submit ">Save Changes</button>
+            </form>
+            </div>
+
+
+
+        </div>
+    </div>
+    <div class="footer-section ">
+        <div class="footer ">
+            <a href="# " class="footer-search ">
+                <div class="img "><img src="{% static 'assets/images/icons/search.svg' %} "></div>
+            </a>
+            <a href="# " class="footer-plus ">
+                <div class="img "><img src="{% static 'assets/images/icons/plus.svg' %} "></div>
+            </a>
+            <a href="# " class="footer-bell ">
+                <div class="img "><img src="{% static 'assets/images/icons/bell.svg' %} "></div>
+            </a>
+        </div>
+    </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js "></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js "></script>
+
+
+</body>
+
+</html>

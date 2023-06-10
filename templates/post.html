@@ -1,0 +1,383 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <title>Winku Social Network Toolkit</title>
+    <link rel="icon" href="{% static 'images/fav.png' %}" type="image/png" sizes="16x16">
+
+    <link rel="stylesheet" href="{% static 'css/main.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/color.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+    <script>
+        function copyUrlToClipboard() {
+            var url = window.location.href;
+            navigator.clipboard.writeText(url)
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $("#comment-form").submit(function(event) {
+                event.preventDefault(); // prevent default form submit behavior
+                var form = $(this);
+                var formData = form.serialize(); // serialize form data
+                var url = form.attr('action');
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function(data) {
+                        // update comments container with new comment
+                        $("#comments").append("<p>" + data.user + ": " + data.text + "</p>");
+                        // clear comment form
+                        form.trigger('reset');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error); // log any errors
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            const deleteBtns = document.querySelectorAll('.delete-comment');
+            deleteBtns.forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    if (confirm('Are you sure you want to delete your comment?')) {
+                        const commentId = btn.getAttribute('data-comment-id');
+                        console.log(commentId)
+                        const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                        fetch(`/delete_comment/${commentId}/`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrfToken,
+                                },
+                            })
+                            .then((res) => {
+                                if (!res.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return res.json();
+                            })
+                            .then((data) => {
+                                if (data.success) {
+                                    btn.parentNode.remove();
+                                } else {
+                                    console.error(data.message);
+                                }
+                            })
+
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+    <script>
+        $(document).on('click', '.like-button', function(e) {
+            e.preventDefault();
+            var postid = $(this).val();
+            var csrftoken = $('input[name=csrfmiddlewaretoken]').val();
+            $.ajax({
+                type: 'POST',
+                url: '{% url "app:like" %}',
+                data: {
+                    postid: postid,
+                    csrfmiddlewaretoken: csrftoken,
+                    action: 'post'
+                },
+                success: function(json) {
+                    $('#like-count-' + postid).text(json.result);
+                },
+                error: function(xhr, errmsg, err) {
+                    // handle error
+                }
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+    <!--<div class="se-pre-con"></div>-->
+    <div class="theme-layout">
+
+        <div class="responsive-header">
+            <div class="mh-head first Sticky">
+                <span class="mh-btns-left">
+				<a class="" href="#menu"><i class="fa fa-align-justify"></i></a>
+			</span>
+                <span class="mh-text">
+				<a href="/" title=""><img src="{% static 'images/logo.png' %}" alt=""></a>
+			</span>
+                <span class="mh-btns-right">
+				<a class="fa fa-sliders" href="#shoppingbag"></a>
+			</span>
+            </div>
+            <div class="mh-head second">
+                <form class="mh-form">
+                    <input placeholder="search" />
+                    <a href="#/" class="fa fa-search"></a>
+                </form>
+            </div>
+
+
+        </div>
+        <!-- responsive header -->
+
+        <div class="topbar stick">
+            <div class="logo">
+                <a title="" href="/"><img src="{% static 'images/logo.png' %}" alt=""></a>
+            </div>
+
+            <div class="top-area">
+
+                <ul class="setting-area">
+                    <li>
+                        <a href="#" title="Home" data-ripple=""><i class="ti-search"></i></a>
+                        <div class="searched">
+                            <form method="post" class="form-search">
+                                <input type="text" placeholder="Search Friend">
+                                <button data-ripple><i class="ti-search"></i></button>
+                            </form>
+                        </div>
+                    </li>
+                    <li><a href="newsfeed.html" title="Home" data-ripple=""><i class="ti-home"></i></a></li>
+                    <li>
+                        <a href="/notifications" title="Notification" data-ripple="">
+                            <i class="ti-bell"></i>
+                        </a>
+                    </li>
+
+
+                </ul>
+                <div class="user-img">
+                    <img src="{% static 'images/resources/blank.jpg' %}" alt="">
+                    <span class="status f-online"></span>
+                </div>
+
+            </div>
+        </div>
+
+        <section>
+            <div class="gap gray-bg">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row" id="page-contents">
+                                <div class="col-lg-3">
+                                    <aside class="sidebar static">
+
+
+                                    </aside>
+                                </div>
+                                <!-- sidebar -->
+                                <div class="col-lg-6">
+                                    <div class="central-meta">
+                                        <div class="editing-interest">
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                  ...
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                    <button type="button" class="dropdown-item" data-toggle="modal" data-target="#exampleModal">
+                                                        Report
+                                                    </button>
+                                                    <button id="copy-btn" onclick="copyUrlToClipboard()" class="dropdown-item">Copy</button> {% if user_profile.user|stringformat:"s" == post.user|stringformat:"s" %}
+                                                    <button id="confirm-delete" class="dropdown-item" data-toggle="modal" data-target="#confirm-delete-modal">Delete</button> {% endif %}
+                                                </div>
+                                            </div>
+
+                                            <img src="{{ post.image.url }}" alt="{{ post.description }}">
+                                            <h1>{{post.user}}</h1>
+                                            <h5>{{ post.description }}</h5>
+
+                                            {% if referencias %}
+                                            <div class="references-container">
+                                                <h3>Referencias</h3>
+                                                <ul>
+                                                    {% for referencia in referencias %}
+                                                    <li>{{ referencia }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                            {% endif %}
+
+                                            <div class="comments-container" id="comments">
+                                                {% for comment in comments %}
+                                                <p>
+                                                    {{ comment.user }}: {{ comment.text }} - {{ comment.created|timesince }} ago {% if request.user.is_authenticated and comment.user == request.user.profile %}
+                                                    <button class="delete-comment" data-comment-id="{{ comment.id }}">Delete</button> {% endif %}
+                                                </p>
+                                                {% endfor %}
+                                            </div>
+                                            <form id="comment-form" method="post" action="{% url 'app:add_comment' post.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="post_id" value="{{ post.id }}">
+                                                <textarea name="text" placeholder="Add a comment..." required></textarea>
+                                                <button type="submit">Post</button>
+                                            </form>
+
+
+                                            <button class="like-button" id="like-button-{{ post.id }}" value="{{ post.id }}">
+                                                {% if request.user.profile in post.likes.all %}
+                                                <i class="fa fa-heart-o "></i>
+                                                {% else %}
+                                                  <i class="fa fa-heart-o "></i>
+                                                {% endif %}
+                                                <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- centerl meta -->
+                                    <div class="col-lg-3">
+                                        <aside class="sidebar static">
+
+
+                                        </aside>
+                                    </div>
+                                    <!-- sidebar -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-5 col-md-4">
+                        <div class="widget">
+                            <div class="foot-logo">
+                                <div class="logo">
+                                    <a href="index-2.html" title=""><img src="{% static 'images/logo.png' %}" alt=""></a>
+                                </div>
+
+                            </div>
+                            <ul class="location">
+
+                                <li>
+                                    <i class="ti-mobile"></i>
+                                    <p>a27360@ead-aerbp.pt</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-4">
+                        <div class="widget">
+                            <div class="widget-title">
+                                <h4>Navigate</h4>
+                            </div>
+                            <ul class="list-style">
+                                <li><a href="about.html" title="">Home</a></li>
+                                <li><a href="contact.html" title="">Notifications</a></li>
+                                <li><a href="terms.html" title="">Profile</a></li>
+                                <li><a href="#" title="">About us</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-4">
+                        <div class="widget">
+                            <div class="widget-title">
+                                <h4>download apps</h4>
+                            </div>
+                            <ul class="colla-apps">
+                                <li><a href="https://play.google.com/store?hl=en" title=""><i class="fa fa-android"></i>android</a></li>
+                                <li><a href="https://www.apple.com/lae/ios/app-store/" title=""><i class="ti-apple"></i>IOS</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- footer -->
+        <div class="bottombar">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        <span class="copyright"><a target="_blank">© Copyright, Fábio Antunes</a></span>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <script src="{% static 'js/main.min.js' %}"></script>
+        <script src="{% static 'js/script.js' %}"></script>
+
+
+
+        <!-- Confirmation delete post modal -->
+        <div class="modal" tabindex="-1" role="dialog" id="confirm-delete-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm deletion</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this post?
+                    </div>
+                    <div class="modal-footer">
+                        <form action="{% url 'app:delete_post' post.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Report Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="{% url 'app:report_post' post.id %}">
+                            {% csrf_token %}
+                            <select name="category" id="category" required>
+                                <option value="no_references">there are no references / Incorrect references</option>
+                                <option value="inappropriate">Inappropriate content</option>
+                            </select></br>
+                            <button type="submit">Report</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+</body>
+
+</html>
+
+</html>
