@@ -3,7 +3,8 @@
 <html lang="en">
 
 <head>
-    <title>Home</title>
+    {% csrf_token %}
+    <title>Refout - {{user_profile.user.username}}</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,6 +12,29 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <style>
+        .comment {
+            position: relative;
+        }
+        
+        .delete-button {
+            display: none;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        
+        .comment:hover .delete-button {
+            display: inline;
+        }
+    </style>
+
+
+
+
+
+
+
 
 </head>
 
@@ -21,7 +45,10 @@
                 <a href=""><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
             </div>
             <div class="header-profile">
-                <a href="#"><img src="{% static 'assets/images/profile.png' %}" class="profile-img"></a>
+                {% if user.is_superuser %}
+                <a href="/admin"><img src="{% static 'assets/images/icons/admin.svg' %}" class="admin-icon"></a> {% endif %} &nbsp;&nbsp;&nbsp;
+                <a href="/logout"><img src="{% static 'assets/images/icons/logout.svg' %}" class="logout-icon"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <a href="/profile/{{user_profile.user.username}}"><img src="{{user_profile.profile_picture.url}}" class="profile-img"></a>
             </div>
         </div>
         <div class="upload-section">
@@ -81,11 +108,17 @@
                     </div>
                     <div class="comment-container">
                         {% for comment in comments %}
-                        <p>{{ comment.user.user.username }}: {{ comment.text }}</p>
+                        <div class="comment" data-comment-id="{{ comment.id }}">
+                            <p>{{ comment.user.user.username }}: {{ comment.text }}
+                                <a class="delete-button" onclick="deleteComment('{{ comment.id }}')">
+                                    <img style="max-width: 20px; max-height: 20px;" src="{% static 'assets/images/icons/delete.svg' %}">
+                                </a>
+                            </p>
+                        </div>
                         {% endfor %}
                     </div>
 
-                    <form id="comment-form" method="POST    " action="{% url 'app:add_comment' post.id %}">
+                    <form id="comment-form" method="POST" action="{% url 'app:add_comment' post.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="post_id" value="{{ post.id }}">
                         <textarea name="text" id="comment-text" rows="2" class="form-control" placeholder="Type a comment.."></textarea>
@@ -260,8 +293,6 @@
                 $('#submit-button').attr('disabled', 'disabled');
             }
 
-
-
             // Enable/disable submit button based on textarea content
             $('#comment-text').on('input', function() {
                 if (isCommentEmpty()) {
@@ -277,13 +308,22 @@
                 var form = $(this);
                 var formData = form.serialize(); // serialize form data
                 var url = form.attr('action');
+                var deleteIconURL = "{% static 'assets/images/icons/delete.svg' %}";
                 $.ajax({
                     url: url,
                     type: 'POST',
                     data: formData,
                     success: function(data) {
                         // update comments container with new comment
-                        $(".comment-container").append("<p>" + data.user + ": " + data.text + "</p>");
+
+                        var commentHtml = '<div class="comment" data-comment-id="' + data.id + '">' +
+                            '<p>' + data.user + ': ' + data.text +
+                            '<a class="delete-button" onclick="deleteComment(' + data.id + ')">' +
+                            '<img style="max-width: 20px; max-height: 20px;" src="' + deleteIconURL + '">' +
+                            '</a>' +
+                            '</p>' +
+                            '</div>';
+                        $(".comment-container").append(commentHtml);
                         form.trigger('reset');
                         $('button[type="submit"]').attr('disabled', 'disabled'); // disable submit button after successful submission
                     },
@@ -304,6 +344,58 @@
                     $('button[type="submit"]').attr('disabled', 'disabled');
                 }
             });
+        });
+    </script>
+
+    <script>
+        function deleteComment(commentId) {
+            var commentElement = $(`[data-comment-id="${commentId}"]`);
+            var url = '{% url "app:delete_comment" %}';
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFTokenFromHeader()
+                },
+                data: {
+                    comment_id: commentId
+                },
+                success: function(response) {
+                    // Handle the success response
+                    commentElement.remove(); // Remove the deleted comment from the DOM
+                },
+                error: function(xhr, errmsg, err) {
+                    // Handle the error response
+                    console.log(err);
+                }
+            });
+        }
+
+        function getCSRFTokenFromHeader() {
+            var csrfToken = null;
+            var cookies = document.cookie.split(';');
+
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    csrfToken = cookie.substring('csrftoken='.length, cookie.length);
+                    break;
+                }
+            }
+
+            return csrfToken;
+        }
+
+        $(document).ready(function() {
+            $('.comment').hover(
+                function() {
+                    $(this).find('.delete-button').show();
+                },
+                function() {
+                    $(this).find('.delete-button').hide();
+                }
+            );
         });
     </script>
 

@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Upload</title>
+    <title>Sign In - Refout</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -54,9 +54,9 @@
         </div>
         <div class="signin-section">
             <div class="title">Sign in</div>
-            {% for message in messages%}
-            <h8>{{message}}</h8>
-            {% endfor %}
+            <div class="message">{% for message in messages%}
+                <h8>{{message}}</h8>
+                {% endfor %}</div>
             <form method="POST" action="">
                 {% csrf_token %}
                 <div class="form-group">

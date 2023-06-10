@@ -4,7 +4,7 @@
 <html lang="en">
 
 <head>
-    <title>Settings</title>
+    <title>Settings - {{user_profile.user.username}}</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -176,7 +176,10 @@
                 <a href=""><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
             </div>
             <div class="header-profile">
-                <a href="#"><img src="{{ user_profile.profile_picture.url }}" class="profile-img"></a>
+                {% if user.is_superuser %}
+                <a href="/admin"><img src="{% static 'assets/images/icons/admin.svg' %}" class="admin-icon"></a> {% endif %} &nbsp;&nbsp;&nbsp;
+                <a href="/logout"><img src="{% static 'assets/images/icons/logout.svg' %}" class="logout-icon"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <a href="/profile/{{user_profile.user.username}}"><img src="{{user_profile.profile_picture.url}}" class="profile-img"></a>
             </div>
 
         </div>
@@ -212,6 +215,8 @@
                     </br>
                     <button class="btn btn-main" type="submit ">Save Changes</button>
             </form>
+            <br><br>
+            <div> <a class="btn btn-main"> Change password </a></div>
             </div>
 
 

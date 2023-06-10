@@ -2,6 +2,9 @@ from io import BytesIO
 from django.core.files.images import ImageFile
 import json
 import uuid
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User, auth
 from django.contrib.auth import authenticate, login
@@ -195,9 +198,41 @@ def signup(request):
     else:
         return render(request, 'signup2.html') 
     
+@login_required
 def logout(request):
     auth.logout(request)
     return redirect('signin?next=/')
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        old_password = request.POST['old_password']
+        new_password = request.POST['new_password']
+        confirm_password = request.POST['confirm_password']
+        userauth = request.user
+        
+        user = User.objects.get(username=request.user.username)
+        
+        if user.check_password(old_password):
+            if new_password == confirm_password:
+                try:
+                    validate_password(new_password, user=user)
+                except ValidationError as error:
+                    messages.error(request, error.messages[0])
+                else:
+                    user.set_password(new_password)
+                    user.save()
+                    update_session_auth_hash(request, user)
+                    messages.success(request, 'Your password was successfully updated!')
+                    return redirect('app:profile', userauth)
+            else:
+                messages.error(request, 'New password and confirm password do not match.')
+        else:
+            messages.error(request, 'Invalid old password.')
+    
+    return render(request, 'registration/change_password.html')
+
 
 def signin(request):
     if request.method == 'POST':
@@ -218,9 +253,15 @@ def forgot_password(request):
 
 @login_required
 def notifications(request):
-    profile = Profile.objects.get(user = request.user)
-    notifications = Notification.objects.filter(recipient=profile)
-    return render(request, 'notifications2.html', {'notifications': notifications})
+    user_profile = Profile.objects.get(user=request.user)
+    notifications = Notification.objects.filter(recipient=user_profile)
+
+    context = {
+        'notifications':notifications,
+        'user_profile':user_profile,
+        
+    }
+    return render(request, 'notifications2.html', context)
 
 @login_required
 def delete_notification(request, notification_id):
@@ -256,6 +297,7 @@ def profile(request, pk):
     user_object = User.objects.get(username=pk)
     user_profile = Profile.objects.get(user=user_object)
     user = request.user
+    
 
     user_object_visit = User.objects.get(username=pk)
     user_profile_visit = Profile.objects.get(user=user_object_visit)
@@ -285,6 +327,7 @@ def profile(request, pk):
         'posts_no': posts_no,
         'follower': user,
         'user': user_profile_visit,
+        'admin': user,
         'text': text,
         'user_followers': user_followers,
         'user_following': user_following,
@@ -430,7 +473,8 @@ def follow(request):
 
 @login_required
 def search(request):
-    return render(request, 'search2.html')
+    user_profile = Profile.objects.get(user=request.user)
+    return render(request, 'search2.html', {'user_profile': user_profile})
 
 @login_required
 def search_results(request):
@@ -585,7 +629,7 @@ def verify_references(request, post_id):
 
         # Add the references to the VerifyReferences object
         verify_references.references.set(references)
-        
+
         if referer:
             return HttpResponseRedirect(referer)
         else:   
@@ -619,15 +663,17 @@ def report_post(request, uuid):
         }
         return render(request, 'post2.html', context)
 
-@login_required
-def delete_comment(request, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id, user=request.user.profile)
-    if request.method == 'POST':
-        comment.delete()
-        messages.success(request, 'Your comment has been deleted.')
-        return redirect('app:post_detail', uuid=comment.post.id)
-    context = {'comment': comment}
-    return redirect('app:post_detail', uuid=comment.post.id)
+def delete_comment(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+        comment_id = request.POST.get('comment_id')
+        try:
+            comment = Comment.objects.get(id=comment_id, user=request.user.profile)
+            comment.delete()
+            return JsonResponse({'success': True})
+        except Comment.DoesNotExist:
+            pass
+    
+    return JsonResponse({'success': False})
 
 
 @login_required

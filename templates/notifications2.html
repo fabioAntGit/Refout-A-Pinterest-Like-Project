@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Upload</title>
+    <title>Notifications - {{user_profile.user.username}}</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -51,7 +51,10 @@
                 <a href="/"><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
             </div>
             <div class="header-profile">
-                <a href="#"><img src="{% static 'assets/images/profile.png' %}" class="profile-img"></a>
+                {% if user.is_superuser %}
+                <a href="/admin"><img src="{% static 'assets/images/icons/admin.svg' %}" class="admin-icon"></a> {% endif %} &nbsp;&nbsp;&nbsp;
+                <a href="/logout"><img src="{% static 'assets/images/icons/logout.svg' %}" class="logout-icon"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <a href="/profile/{{user_profile.user.username}}"><img src="{{user_profile.profile_picture.url}}" class="profile-img"></a>
             </div>
         </div>
         <div class="notification-section">
@@ -60,8 +63,7 @@
                 <div class="notification">
                     <div class="notification-content">
                         <p class="notification-message">
-                            {{ notification.sender }} {{ notification.notification_type }} {% if notification.notification_type == 'like' %} liked your post {% elif notification.notification_type == 'comment' %} commented on your post {% else %} started following you {% endif %}
-                            {% if notification.post %}
+                            {{ notification.sender }} {% if notification.notification_type == 'like' %} liked your post {% elif notification.notification_type == 'comment' %} commented on your post {% else %} started following you {% endif %} {% if notification.post %}
                             <a href="{% url 'app:post_detail' notification.post.id %}">
                                 <img src="{{ notification.post.image.url }}" width="60" height="60" alt="">
                             </a>

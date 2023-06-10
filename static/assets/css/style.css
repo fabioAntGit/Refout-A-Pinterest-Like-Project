@@ -535,6 +535,10 @@ h6 {
     color: #113E21;
 }
 
+.message {
+    text-align: center;
+}
+
 #comment-page .comment-container .dataa {
     margin: auto;
     padding: 10px;
@@ -612,6 +616,3 @@ hr {
     border-top: 1px solid #ccc;
 }
 
-border-top: 1px solid #ccc;
-
-}
