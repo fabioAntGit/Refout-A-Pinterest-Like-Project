@@ -29,15 +29,17 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 
 
-# Create your views here.
-
 @login_required
 def error_404(request,exception):
+    storage = get_messages(request)
+    storage.used = True
     return render(request, '404.html')
 
 
 @login_required
 def index(request):
+    storage = get_messages(request)
+    storage.used = True
     user_object = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_object)
 
@@ -55,12 +57,14 @@ def index(request):
 
     feed_list = list(chain(*feed))
 
-    posts = feed_list[:12]  # Retrieve only the first 12 posts
+    posts = feed_list[:12]  
 
     return render(request, 'index2.html', {'user_profile': user_profile, 'posts': posts})
 
 @login_required
 def load_more_posts_follow(request):
+    storage = get_messages(request)
+    storage.used = True
     user_profile = request.user.profile
     limit = int(request.GET.get('limit', 24))
     offset = int(request.GET.get('offset', 0))
@@ -84,23 +88,25 @@ def load_more_posts_follow(request):
 
 @login_required
 def load_more_posts(request):
-  user_object = User.objects.get(username=request.user.username)
-  user_profile = Profile.objects.get(user=user_object)
-  current_user_profile = request.user.profile
-  limit = int(request.GET.get('limit', 24))
-  offset = int(request.GET.get('offset', 0))
+    storage = get_messages(request)
+    storage.used = True
+    user_object = User.objects.get(username=request.user.username)
+    user_profile = Profile.objects.get(user=user_object)
+    current_user_profile = request.user.profile
+    limit = int(request.GET.get('limit', 24))
+    offset = int(request.GET.get('offset', 0))
 
-  posts = Post.objects.exclude(user=current_user_profile)[offset:offset + limit]
+    posts = Post.objects.exclude(user=current_user_profile)[offset:offset + limit]
 
-  data = []
-  for post in posts:
-    data.append({
-      'id': str(post.id),
-      'image_url': post.image.url,
-      'username': post.user.user.username
-    })
+    data = []
+    for post in posts:
+        data.append({
+        'id': str(post.id),
+        'image_url': post.image.url,
+        'username': post.user.user.username
+        })
 
-  return JsonResponse(data, safe=False)
+    return JsonResponse(data, safe=False)
 
 
 
@@ -108,6 +114,8 @@ def load_more_posts(request):
 
 @login_required
 def indexall(request):
+    storage = get_messages(request)
+    storage.used = True
     user_object = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_object)
     current_user_profile = request.user.profile
@@ -116,37 +124,12 @@ def indexall(request):
     return render(request, 'indexall2.html', {'user_profile': user_profile, 'posts': posts})
 
 
-
-
-# @login_required
-# def like_post(request):
-#     if request.POST.get('action') == 'post':
-#         result = ''
-#         id = request.POST.get('postid')
-#         post = get_object_or_404(Post, id=uuid.UUID(id))
-#         profile = get_object_or_404(Profile, user=request.user)
-#         existing_noti = Notification.objects.filter(recipient=post.user,sender=request.user.profile,notification_type="like",post=post)
-#         if post.likes.filter(id=profile.id).exists():
-#             post.likes.remove(profile)
-#             result = post.likes.count()
-#             post.save()
-#             if existing_noti.exists():
-#                 existing_noti.delete()
-        
-
-#         else:
-#             post.likes.add(profile)
-#             result = post.likes.count()
-#             post.save()
-#             notifications = Notification.objects.create(recipient=post.user, sender=request.user.profile, notification_type="like", post=post)
-
-
-#     return JsonResponse({'result': result})
-
 from django.http import JsonResponse
 
 @login_required
 def like_post(request):
+    storage = get_messages(request)
+    storage.used = True
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         result = ''
         post_id = request.POST.get('postid')
@@ -165,6 +148,8 @@ def like_post(request):
     return JsonResponse({'error': 'Invalid request'})
 
 def signup(request):
+    storage = get_messages(request)
+    storage.used = True
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -183,9 +168,6 @@ def signup(request):
                 user = User.objects.create_user(username=username, email=email, password=password)
                 user.save()
                 
-
-                #criação do profile
-
                 user_model = User.objects.get(username=username)
                 new_profile = Profile.objects.create(user=user_model)
                 new_profile.save()
@@ -195,22 +177,21 @@ def signup(request):
             return redirect('app:signup')
 
 
-
-            #criação do profile
-
-
-
     else:
         return render(request, 'signup2.html') 
     
 @login_required
 def logout(request):
+    storage = get_messages(request)
+    storage.used = True
     auth.logout(request)
     return redirect('signin?next=/')
 
 
 @login_required
 def change_password(request):
+    storage = get_messages(request)
+    storage.used = True
     if request.method == 'POST':
         old_password = request.POST['old_password']
         new_password = request.POST['new_password']
@@ -240,6 +221,8 @@ def change_password(request):
 
 
 def signin(request):
+    storage = get_messages(request)
+    storage.used = True
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -249,15 +232,13 @@ def signin(request):
             return redirect('/')
         else:
             messages.info(request, 'Invalid password or email')
-    # Handle GET request or other cases
     return render(request, 'signin2.html')
     
 
-def forgot_password(request):
-    return render(request, 'forgot_password.html')
-
 @login_required
 def notifications(request):
+    storage = get_messages(request)
+    storage.used = True
     user_profile = Profile.objects.get(user=request.user)
     notifications = Notification.objects.filter(recipient=user_profile)
 
@@ -270,6 +251,8 @@ def notifications(request):
 
 @login_required
 def delete_notification(request, notification_id):
+    storage = get_messages(request)
+    storage.used = True
     user_profile = Profile.objects.get(user=request.user)
     notifications = Notification.objects.filter(recipient=user_profile)
 
@@ -284,7 +267,8 @@ def delete_notification(request, notification_id):
 
 @login_required
 def profile_more (request, pk):
-    
+    storage = get_messages(request)
+    storage.used = True
     user_object=User.objects.get(username=pk)
     user_profile=Profile.objects.get(user=user_object)
 
@@ -299,16 +283,16 @@ def profile_more (request, pk):
 
 @login_required
 def profile(request, pk):
+    storage = get_messages(request)
+    storage.used = True
     user_object = User.objects.get(username=pk)
     user_profile = Profile.objects.get(user=user_object)
     user = request.user
     
 
     
-    # Get the list of users who are following the current account
     user_following_list = [following_count.user for following_count in FollowersCount.objects.filter(follower=user_profile)]
     
-    # Get the list of users who are followers of the current account
     user_followers_list = FollowersCount.objects.filter(user=user_profile)
 
     user_object_visit = User.objects.get(username=pk)
@@ -318,10 +302,8 @@ def profile(request, pk):
     posts_no = Post.objects.filter(user=user_object.id).count()
 
     if user_profile_visit.user == request.user:
-        # User is visiting their own profile, show Settings button
         text = 'Settings'
     else:
-        # Check if the authenticated user is following the visited profile
         is_following = FollowersCount.objects.filter(follower=user.profile, user=user_profile_visit).exists()
         if is_following:
             text = 'Unfollow'
@@ -349,40 +331,10 @@ def profile(request, pk):
     return render(request, 'profile2.html', context)
 
 
-# @login_required
-# def profile(request, pk):
-#     user_object = User.objects.get(username=pk)
-#     user_profile = Profile.objects.get(user=user_object)
-
-#     user_object_visit = User.objects.get(username=pk)
-#     user_profile_visit = Profile.objects.get(user=user_object_visit)
-
-#     posts = Post.objects.filter(user=user_object.id)
-#     posts_no = Post.objects.filter(user=user_object.id).count()
-
-#     if FollowersCount.objects.filter(follower=request.user.profile, user=user_profile_visit).exists():
-#         text = 'Unfollow'
-#     else:
-#         text = 'Follow'
-
-#     user_followers = len(FollowersCount.objects.filter(user=user_profile_visit))
-#     user_following = len(FollowersCount.objects.filter(follower=request.user.profile))
-
-#     context = {
-#         'user_object': user_object,
-#         'user_profile': user_profile,
-#         'posts': posts,
-#         'posts_no': posts_no,
-#         'follower': user_profile,
-#         'user': user_profile_visit,
-#         'text': text,
-#         'user_followers': user_followers,
-#         'user_following': user_following,
-#     }
-#     return render(request, 'profile.html', context)
-
-
+@login_required
 def upload(request):
+    storage = get_messages(request)
+    storage.used = True
     user_profile = Profile.objects.get(user=request.user)
 
     if request.method == 'POST':
@@ -404,58 +356,10 @@ def upload(request):
         return render(request, 'upload1.html', {'user_profile': user_profile})
 
 
-
-
-
-# def upload(request):
-#     user_object=User.objects.get(username=request.user.username)
-#     user_profile=Profile.objects.get(user=user_object)
-#     referencia=Referencia.objects.all()
-#     if request.method == 'POST':
-#         user = User.objects.get(username=request.user.username)
-#         image = request.FILES.get('image')
-#         description = request.POST['description']
-#         new_post = Post.objects.create(user=user,image=image,description=description)
-#         new_post.save()
-
-#         category = request.POST.getlist('category[]')
-#         descriptions = request.POST.getlist('descriptions[]')
-
-#         for i in range(len(category)):
-#             category = category[i]
-#             descriptionss = descriptions[i]
-#             new_ref = Referencia.objects.create(
-#                 post= new_post,
-#                 category=category,
-#                 description=descriptionss,
-#             )
-#             new_ref.save()
-
-#         return redirect("/")
-
-#     else:   
-#         return render(request, 'upload.html', {'user_profile': user_profile, 'referencia': referencia})
-    
-# @login_required
-# def follow(request):
-#     if request.method == 'POST':
-#         follower = request.POST.get('follower')
-#         user = request.POST.get('user')
-        
-#         if FollowersCount.objects.filter(follower=follower, user=user).first():
-#             delete_follow = FollowersCount.objects.get(follower=follower, user=user)
-#             delete_follow.delete()
-#             return redirect('/profile/'+user)
-#         else:
-#             new_follower = FollowersCount.objects.create(follower = follower, user = user)
-#             new_follower.save()
-#             return redirect('/profile/'+user)
-        
-#     else:
-#         return redirect('profile', pk=user.user.username)
-
 @login_required
 def follow(request):
+    storage = get_messages(request)
+    storage.used = True
     if request.method == 'POST':
         
         follower_id = request.POST.get('follower')
@@ -482,16 +386,18 @@ def follow(request):
         return redirect('profile', pk=user.user.username)
 
 
-
-    
-
 @login_required
 def search(request):
+    storage = get_messages(request)
+    storage.used = True
     user_profile = Profile.objects.get(user=request.user)
     return render(request, 'search2.html', {'user_profile': user_profile})
 
+
 @login_required
 def search_results(request):
+    storage = get_messages(request)
+    storage.used = True
     if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
         user = request.POST.get('user')
         qs = Profile.objects.filter(user__username__icontains=user)
@@ -509,31 +415,15 @@ def search_results(request):
             return JsonResponse({'data': 'no users found...'})
     return JsonResponse({})
 
-@login_required
-def post(request):
-    # if request.method == 'POST':
-    #     post_id = request.POST.get('postid')
-    #     post = Post.objects.get(id=post_id)
-    #     comment = Comment.objects.get(post=post_id)
-    #     likes_count = post.likes.count()
-    #     data = {
-    #         'image': post.image.url,
-    #         'user': post.user.user.username,
-    #         'created': post.created.strftime("%d/%m/%Y at %H:%M"),
-    #         'likes': likes_count,
-    #         'profile_picture': post.user.profile_picture.url,
-            
-    #     }
-    #     return JsonResponse(data)
-    # else:
-        return render(request, 'post.html')
 
 @login_required
 def post_detail(request, uuid):
+    storage = get_messages(request)
+    storage.used = True
     post = get_object_or_404(Post, id=uuid)
     user_profile = Profile.objects.get(user=request.user)
     comments = Comment.objects.filter(post=post).order_by('-created')
-    referencias = post.referencias.all()  # get all references related to the post
+    referencias = post.referencias.all()  
     context = {
         'post': post,
         'comments': comments,
@@ -544,11 +434,11 @@ def post_detail(request, uuid):
 
 @login_required
 def save_changes(request, post_id):
+    storage = get_messages(request)
+    storage.used = True
     if request.method == 'POST':
-        # Retrieve the updated data from the form
         descriptionpost = request.POST.get('description')
 
-        # Get the category and description of related references
         references = Referencia.objects.filter(post_id=post_id)
         updated_references = []
         for referencia in references:
@@ -556,7 +446,6 @@ def save_changes(request, post_id):
             description = request.POST.get(f'description{referencia.id}')
             updated_references.append((category, description))
 
-        # Update the post and references in the database
         post = Post.objects.get(id=post_id)
         post.description = descriptionpost
         post.save()
@@ -566,17 +455,17 @@ def save_changes(request, post_id):
             referencia.description = updated_references[i][1]
             referencia.save()
 
-        # Redirect back to the post detail page
         return redirect(reverse('app:post_detail', kwargs={'uuid': post_id}))
 
 @login_required
 def delete_reference(request):
+    storage = get_messages(request)
+    storage.used = True
     if request.method == 'POST':
         reference_id = request.POST.get('reference_id')
         delete_reference = request.POST.get('delete_reference')
         
         if delete_reference == '1':
-            # Perform the deletion of the reference from the database
             try:
                 reference = Referencia.objects.get(id=reference_id)
                 reference.delete()
@@ -591,6 +480,8 @@ def delete_reference(request):
 
 @login_required
 def add_comment(request, post_id):
+    storage = get_messages(request)
+    storage.used = True
     if request.method == 'POST':
         post = get_object_or_404(Post, pk=post_id)
         text = request.POST.get('text')
@@ -598,14 +489,13 @@ def add_comment(request, post_id):
         if text:
             comment = Comment.objects.create(user=request.user.profile, post=post, text=text)
             
-            if request.user != post.user.user:  # Check if the commenting user is not the post owner
-                # Create a notification
+            if request.user != post.user.user:  
                 notification = Notification.objects.create(
                     recipient=post.user,
                     sender=request.user.profile,
                     notification_type='comment',
                     post=post,
-                    comment=comment  # Associate the comment with the notification
+                    comment=comment  
                 )
             
             return JsonResponse({
@@ -625,12 +515,13 @@ def add_comment(request, post_id):
 
 @login_required
 def settings(request):
-    
+    storage = get_messages(request)
+    storage.used = True
     user = request.user
     user_profile = Profile.objects.get(user=user)
 
     if request.method == 'POST':
-        username = request.POST.get('username', '')  # Retrieve the value of 'username'
+        username = request.POST.get('username', '')  
         email = request.POST.get('email', '')
 
         if User.objects.exclude(pk=user.pk).filter(username=username).exists():
@@ -661,7 +552,6 @@ def settings(request):
         image_file = request.FILES.get('image')
         banner_image_file = request.FILES.get('banner_image')
 
-        # Update the profile picture and banner image if they exist
         if image_file:
             user_profile.profile_picture.save(image_file.name, image_file)
         if banner_image_file:
@@ -681,18 +571,17 @@ def settings(request):
 
 
 def verify_references(request, post_id):
+    storage = get_messages(request)
+    storage.used = True
     post = get_object_or_404(Post, id=post_id)
     user = request.user
     referer = request.META.get('HTTP_REFERER')
     
     if request.method == 'POST':
-        # Create a new VerifyReferences object
         verify_references = VerifyReferences.objects.create(post=post)
 
-        # Get all the references related to the post
         references = Referencia.objects.filter(post=post)
 
-        # Add the references to the VerifyReferences object
         verify_references.references.set(references)
 
         if referer:
@@ -704,6 +593,8 @@ def verify_references(request, post_id):
 
 @login_required
 def report_post(request, uuid):
+    storage = get_messages(request)
+    storage.used = True
     post = get_object_or_404(Post, id=uuid)
     if request.method == 'POST':
         category = request.POST.get('category')
@@ -729,6 +620,8 @@ def report_post(request, uuid):
         return render(request, 'post2.html', context)
 
 def delete_comment(request):
+    storage = get_messages(request)
+    storage.used = True
     if request.method == 'POST' and request.user.is_authenticated:
         comment_id = request.POST.get('comment_id')
         try:
@@ -741,6 +634,8 @@ def delete_comment(request):
     return JsonResponse({'success': False})
 
 def delete_comment(request):
+    storage = get_messages(request)
+    storage.used = True
     if request.method == 'POST' and request.user.is_authenticated:
         comment_id = request.POST.get('comment_id')
         try:
@@ -757,6 +652,8 @@ def delete_comment(request):
 
 @login_required
 def delete_post(request, uuid):
+    storage = get_messages(request)
+    storage.used = True
     post = get_object_or_404(Post, id=uuid)
     user = request.user
     if request.method == 'POST':
