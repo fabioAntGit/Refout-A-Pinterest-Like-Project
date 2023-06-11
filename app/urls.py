@@ -16,7 +16,7 @@ urlpatterns = [
     path('like/', views.like_post, name='like'),
     path('comment/<uuid:post_id>', views.add_comment, name='add_comment'),
     path('delete_comment/', views.delete_comment, name='delete_comment'),    path('follow', views.follow, name="follow"),
-    path('forgot_password', views.forgot_password, name="forgot_password"),
+    path('forgot_password', views.password_reset, name="password_reset"),
     path('notifications', views.notifications, name='notifications'),
     path('delete_notification/<uuid:notification_id>/', views.delete_notification, name='delete_notification'),
     path('profile/<str:pk>', views.profile, name='profile'),
@@ -29,6 +29,12 @@ urlpatterns = [
     path('p/<uuid:uuid>/delete/', views.delete_post, name='delete_post'),
     path('p/<uuid:post_id>/verify/', views.verify_references, name='verify_references'),
     path('change_password/', views.change_password, name='change_password'),
+    path('save_changes/<uuid:post_id>/', views.save_changes, name='save_changes'),
+    path('delete_reference/', views.delete_reference, name='delete_reference'),
+    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+
+
+    
 ]
 
 handler404 = 'app.views.error_404'

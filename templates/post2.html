@@ -16,16 +16,37 @@
         .comment {
             position: relative;
         }
-        
+
         .delete-button {
             display: none;
             position: absolute;
             top: 0;
             right: 0;
         }
-        
+
         .comment:hover .delete-button {
             display: inline;
+        }
+
+        .category-container {
+            max-height: 250px;
+            min-height: 250px;
+            overflow-y: scroll;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+
+        .refedit {
+            border-TOP: 1px solid #B38B5A;
+            padding-top: 9px;
+            margin-bottom: 15px;
+        }
+
+        .descriptionedit {
+            resize: none;
+        }
+        .modal-footer{
+            justify-content: space-between;
         }
     </style>
 
@@ -133,7 +154,9 @@
                                 </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             {% if user_profile.user|stringformat:"s" == post.user|stringformat:"s" %}
-                            <a id="confirm-delete" class="dropdown-item" data-toggle="modal" data-target="#confirm-delete-modal">Delete</a> {% if not post.verify_references %}
+                            <a id="confirm-delete" class="dropdown-item" data-toggle="modal" data-target="#confirm-delete-modal">Delete</a>
+                            <a id="edit-post" class="dropdown-item" data-toggle="modal" data-target="#edit-modal">Edit</a>
+{% if not post.verify_references %}
                             <a class="dropdown-item" data-toggle="modal" data-target="#verify-references-modal-{{ post.id }}">Verify References</a> {% endif %} {% endif %} {% if user_profile.user|stringformat:"s" != post.user|stringformat:"s" %}
                             <a class="dropdown-item" data-toggle="modal" data-target="#commentModal">Report</a> {% endif %}
                             <a class="dropdown-item" onclick="copyUrlToClipboard()">Copy</a>
@@ -151,7 +174,7 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
-                  </button>
+                </button>
                     </div>
                     <form method="post" action="{% url 'app:report_post' post.id %}">
                         <div class="modal-body">
@@ -172,6 +195,65 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-labelledby="edit-modal-label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <form id="edit-form" method="POST" action="{% url 'app:save_changes' post.id %}">
+                    {% csrf_token %}
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="edit-modal-label">Edit Post</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <label  for="post-description">Description:</label>
+                            <textarea rows="3" style="margin-bottom: 35px;" type="text" id="post-description" name="description" value="{{ post.description }}" class="form-control descriptionedit" placeholder="">{{ post.description }}</textarea>
+            
+                            <div class="category-container">
+                                {% if referencias %}
+                                    {% for referencia in referencias %}
+                                    <div class="refedit" data-reference-id="{{ referencia.id }}">
+                                        <label for="category{{ referencia.id }}">Category:</label>
+                                        <div class="editrefclose">
+                                    
+                                        <select id="category{{ referencia.id }}" name="category{{ referencia.id }}" class="form-control">
+                                            <option value="" disabled>Choose a category</option>
+                                            <option value="pants" {% if referencia.category == "pants" %} selected {% endif %}>Pants</option>
+                                            <option value="t_shirt" {% if referencia.category == "t_shirt" %} selected {% endif %}>T-Shirt</option>
+                                            <option value="jacket"  {% if referencia.category == "jacket" %} selected {% endif %}>Jacket</option>
+                                            <option value="hat" {% if referencia.category == "hat" %} selected {% endif %}>Hat</option>
+                                            <option value="shorts" {% if referencia.category == "shorts" %} selected {% endif %}>Shorts</option>
+                                            <option value="shirt" {% if referencia.category == "shirt" %} selected {% endif %}>Shirt</option>
+                                            <option value="belt" {% if referencia.category == "belt" %} selected {% endif %}>Belt</option>
+                                            <option value="shoes" {% if referencia.category == "shoes" %} selected {% endif %}>Shoes</option>
+                                            <option value="watch" {% if referencia.category == "watch" %} selected {% endif %}>Watch</option>
+                                            <option value="necklace" {% if referencia.category == "necklace" %} selected {% endif %}>Necklace</option>
+                                            <option value="ring" {% if referencia.category == "ring" %} selected {% endif %}>Ring</option>
+                                            <option value="earring" {% if referencia.category == "earring" %} selected {% endif %}>Earring</option>
+                                            <option value="bag" {% if referencia.category == "bag" %} selected {% endif %}>Bag</option>
+                                            <!-- Add options for other categories here -->
+                                        </select>
+                                                                                 
+                                        </div>
+                                        <input style="margin-top: 5px;" type="text" id="description{{ referencia.id }}" name="description{{ referencia.id }}" value="{{ referencia.description }}" class="form-control">
+                                        
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" onclick="saveChanges()">Save Changes</button>
+                        </div>
+                    </div>
+                <form id="edit-form" method="POST" action="{% url 'app:save_changes' post.id %}"></form>
+            </div>
+        </div>
+        
+        
         <div class="modal" tabindex="-1" role="dialog" id="confirm-delete-modal">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -281,6 +363,7 @@
             window.location.href = referer;
         }
     </script>
+    
 
     <script>
         $(document).ready(function() {
@@ -349,6 +432,85 @@
             });
         });
     </script>
+    <script>
+        function addReferenceContainer() {
+          // Create a new reference container element
+
+    
+          var referenceContainer = document.createElement('div');
+          referenceContainer.className = 'refedit';
+          referenceContainer.setAttribute('data-reference-id', ''); // Set a data attribute for reference ID if needed
+          
+          // Create the label for category
+          var categoryLabel = document.createElement('label');
+          categoryLabel.textContent = 'Category:';
+          referenceContainer.appendChild(categoryLabel);
+          
+          // Create the container for category and delete button
+          var categoryDeleteContainer = document.createElement('div');
+          categoryDeleteContainer.className = 'editrefclose';
+          referenceContainer.appendChild(categoryDeleteContainer);
+          
+          // Create the category dropdown
+          var categoryDropdown = document.createElement('select');
+          categoryDropdown.className = 'form-control';
+          categoryDropdown.name = 'new-category'; // Set the name attribute for the new category dropdown
+          categoryDropdown.style.marginBottom = '5px'; // Adjust the margin bottom as needed
+          categoryDropdown.innerHTML = `
+            <option value="" disabled selected>Choose a category</option>
+            <option value="pants">Pants</option>
+            <option value="t_shirt">T-Shirt</option>
+            <option value="jacket">Jacket</option>
+            <option value="hat">Hat</option>
+            <option value="shorts">Shorts</option>
+            <option value="shirt">Shirt</option>
+            <option value="belt">Belt</option>
+            <option value="shoes">Shoes</option>
+            <option value="watch">Watch</option>
+            <option value="necklace">Necklace</option>
+            <option value="ring">Ring</option>
+            <option value="earring">Earring</option>
+            <option value="bag">Bag</option>
+          `;
+          categoryDeleteContainer.appendChild(categoryDropdown);
+          
+          // Create the delete button
+          var deleteButton = document.createElement('button');
+          var deleteIconURL = "{% static 'assets/images/icons/close.svg' %}";
+          deleteButton.className = 'delete-reference';
+          deleteButton.innerHTML = '<img src="' + deleteIconURL + '">';
+          deleteButton.addEventListener('click', function() {
+            // Remove the reference container when the delete button is clicked
+            referenceContainer.remove();
+          });
+          categoryDeleteContainer.appendChild(deleteButton);
+          
+          // Create the description input field
+          var descriptionInput = document.createElement('input');
+          descriptionInput.className = 'form-control';
+          descriptionInput.type = 'text';
+          descriptionInput.name = 'new-description'; // Set the name attribute for the new description input
+          descriptionInput.placeholder = 'Description';
+          referenceContainer.appendChild(descriptionInput);
+          
+          // Append the new reference container to the category container
+          var categoryContainer = document.querySelector('.category-container');
+          categoryContainer.appendChild(referenceContainer);
+        }
+      </script>
+      
+      
+      
+      
+            
+    <script>
+        function saveChanges() {
+            document.getElementById('edit-form').submit();
+        }
+    </script>
+
+
+    
 
     <script>
         function deleteComment(commentId) {
@@ -401,6 +563,9 @@
             );
         });
     </script>
+
+
+
 
 </body>
 
