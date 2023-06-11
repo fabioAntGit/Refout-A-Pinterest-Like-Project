@@ -27,6 +27,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
+from .helpers import send_forgoet_password_mail
 
 
 # Create your views here.
@@ -254,7 +255,7 @@ def signin(request):
     
 
 def forgot_password(request):
-    return render(request, 'password_reset_form.html')
+    return render(request, 'forgot_password.html')
 
 @login_required
 def notifications(request):
@@ -764,39 +765,3 @@ def delete_post(request, uuid):
         return redirect('app:profile', user)
 
     return render(request, 'app:delete_post', {'post': post})
-
-
-def password_reset(request):
-    if request.method == 'POST':
-        email = request.POST['email']
-        try:
-            user = User.objects.get(email=email)
-            current_site = get_current_site(request)
-            mail_subject = 'Reset your password'
-            message = render_to_string('reset_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user),
-            })
-            send_mail(mail_subject, message, 'refoutapp@gmail.com', [email])
-            return redirect('app:signin')
-        except User.DoesNotExist:
-            pass
-    return render(request, 'password_reset_form.html')
-
-def password_reset_confirm(request, uidb64, token):
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-        if default_token_generator.check_token(user, token):
-            # Token is valid, allow the user to set a new password
-            if request.method == 'POST':
-                password = request.POST['password']
-                user.set_password(password)
-                user.save()
-                return redirect('password_reset_complete')
-            return render(request, 'password_reset_confirm.html')
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        pass
-    return redirect('password_reset_invalid')
