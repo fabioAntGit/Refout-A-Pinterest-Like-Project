@@ -783,7 +783,7 @@ def password_reset(request):
             return redirect('app:signin')
         except User.DoesNotExist:
             pass
-    return render(request, 'forgot_password.html')
+    return render(request, 'password_reset_form.html')
 
 def password_reset_confirm(request, uidb64, token):
     try:
