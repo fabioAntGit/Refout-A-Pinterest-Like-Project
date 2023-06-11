@@ -29,7 +29,7 @@
         <div class="contain-section" id="content-section">
             <div class="fol-gal-all-section">
                 <a href="/" class="follow">follow</a>
-                <a href="#" class="gallery" id="gallery">
+                <a class="gallery" id="gallery">
                     <div class="img"><img src="{% static 'assets/images/icons/menu-gallery.svg' %}"></div>
                 </a>
                 <a href="" class="all">all</a>
@@ -39,7 +39,7 @@
                 {% for post in posts %}
                 <div class="main-img">
                     <div class="img">
-                        <a href="p/{{ post.id }}"><img src="{{ post.image.url }} " alt=" "></a>
+                        <a href="{% url 'app:post_detail' {{post.id}}%}"><img src="{{ post.image.url }} " alt=" "></a>
                         <div class="vector-badge">
                             <a href="/profile/{{ post.user.user.username }}">{{ post.user.user.username }}</a>
                         </div>

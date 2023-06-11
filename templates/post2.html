@@ -63,7 +63,7 @@
     <div class="wrapper">
         <div class="header">
             <div class="header-logo">
-                <a href=""><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
+                <a href="/"><img src="{% static 'assets/images/refoutgreen.png' %}" class="logo-img"></a>
             </div>
             <div class="header-profile">
                 {% if user.is_superuser %}
@@ -74,7 +74,7 @@
         </div>
         <div class="upload-section">
             <div class="back-link">
-                <a href="#" onclick="goBack()"><img src="{% static 'assets/images/icons/back-link.svg' %}" alt=""></a>
+                <a onclick="goBack()"><img src="{% static 'assets/images/icons/back-link.svg' %}" alt=""></a>
             </div>
             <div class="row mx-auto w-100">
                 <div class="col-lg-6 col-md-6 col-sm-12 col-12 mt-3 text-center">
@@ -95,11 +95,7 @@
                                 </div>
                             </div>
                             <div>
-                                <!-- <a href="#" class="like-button" id="like-button-{{ post.id }}" value="{{ post.id }}" onclick="likePost('{{ post.id }}', this)" data-liked="{% if user_profile.id in post.likes.all %}true{% else %}false{% endif %}">
-                                    <img src="{% static 'assets/images/icons/heart.svg' %}" alt="">
-                                </a>
-                                &nbsp;
-                                <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span> -->
+                                
                                 <button class="like-button" id="like-button-{{ post.id }}" value="{{ post.id }}">
                                     {% if request.user.profile in post.likes.all %}
                                     <img src="{% static 'assets/images/icons/heartcomplete.svg' %}" alt="">
@@ -130,7 +126,7 @@
                     <div class="comment-container">
                         {% for comment in comments %}
                         <div class="comment" data-comment-id="{{ comment.id }}">
-                            <p>{{ comment.user.user.username }}: {{ comment.text }}
+                            <p><a href="/profile/{{ comment.user.user.username }}">{{ comment.user.user.username }}</a>: {{ comment.text }}
                                 {% if comment.user.user.username == user.username %}
                                 <a class="delete-button" onclick="deleteComment('{{ comment.id }}')">
                                     <img style="max-width: 20px; max-height: 20px;" src="{% static 'assets/images/icons/delete.svg' %}">
@@ -300,13 +296,13 @@
         </div>
         <div class="footer-section ">
             <div class="footer ">
-                <a href="# " class="footer-search ">
+                <a href="/search " class="footer-search ">
                     <div class="img "><img src="{% static 'assets/images/icons/search.svg' %} "></div>
                 </a>
-                <a href="# " class="footer-plus ">
+                <a href="/upload " class="footer-plus ">
                     <div class="img "><img src="{% static 'assets/images/icons/plus.svg' %} "></div>
                 </a>
-                <a href="# " class="footer-bell ">
+                <a href="/notifications" class="footer-bell ">
                     <div class="img "><img src="{% static 'assets/images/icons/bell.svg' %} "></div>
                 </a>
             </div>

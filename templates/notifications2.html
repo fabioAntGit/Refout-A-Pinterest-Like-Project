@@ -63,9 +63,9 @@
                 <div class="notification">
                     <div class="notification-content">
                         <p class="notification-message">
-                            {{ notification.sender }} {% if notification.notification_type == 'like' %} liked your post {% elif notification.notification_type == 'comment' %} commented on your post {% else %} started following you {% endif %} {% if notification.post %}
+                            <a href="/profile/{{ notification.sender }}">{{ notification.sender }}</a> {% if notification.notification_type == 'like' %} liked your post {% elif notification.notification_type == 'comment' %} commented on your post {% else %} started following you {% endif %} {% if notification.post %}
                             <a href="{% url 'app:post_detail' notification.post.id %}">
-                                <img src="{{ notification.post.image.url }}" width="60" height="60" alt="">
+                                <img src="{{ notification.post.image.url }}" width="60" height="120" alt="">
                             </a>
                             {% endif %}
                         </p>
@@ -84,13 +84,13 @@
     </div>
     <div class="footer-section">
         <div class="footer">
-            <a href="#" class="footer-search">
+            <a href="/search" class="footer-search">
                 <div class="img"><img src="{% static 'assets/images/icons/search.svg' %}"></div>
             </a>
-            <a href="#" class="footer-plus">
+            <a href="/upload" class="footer-plus">
                 <div class="img"><img src="{% static 'assets/images/icons/plus.svg' %}"></div>
             </a>
-            <a href="#" class="footer-bell">
+            <a href="/notifications" class="footer-bell">
                 <div class="img"><img src="{% static 'assets/images/icons/bell.svg' %}"></div>
             </a>
         </div>
