@@ -16,7 +16,7 @@ urlpatterns = [
     path('like/', views.like_post, name='like'),
     path('comment/<uuid:post_id>', views.add_comment, name='add_comment'),
     path('delete_comment/', views.delete_comment, name='delete_comment'),    path('follow', views.follow, name="follow"),
-    path('forgot_password', views.password_reset, name="password_reset"),
+    path('forgot_password', views.forgot_password, name="forgot_password"),
     path('notifications', views.notifications, name='notifications'),
     path('delete_notification/<uuid:notification_id>/', views.delete_notification, name='delete_notification'),
     path('profile/<str:pk>', views.profile, name='profile'),
@@ -32,6 +32,9 @@ urlpatterns = [
     path('save_changes/<uuid:post_id>/', views.save_changes, name='save_changes'),
 
     path('reset_password/',auth_views.PasswordResetView.as_view(),name='reset_password'),
+    path('reset_password_sent/',auth_views.PasswordResetDoneView.as_view(),name='reset_password'),
+    path('reset/<uidb64>/<token>',auth_views.PasswordResetView.as_view(),name='reset_password'),
+    path('reset_password_complete/',auth_views.PasswordResetCompleteView.as_view(),name='reset_password'),
 
 
 
