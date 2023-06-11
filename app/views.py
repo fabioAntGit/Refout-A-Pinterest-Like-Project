@@ -254,7 +254,7 @@ def signin(request):
     
 
 def forgot_password(request):
-    return render(request, 'forgot_password.html')
+    return render(request, 'password_reset_form.html')
 
 @login_required
 def notifications(request):
