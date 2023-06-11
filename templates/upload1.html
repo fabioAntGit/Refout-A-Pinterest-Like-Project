@@ -57,7 +57,7 @@
 
                         <form method="POST" action="upload" enctype="multipart/form-data" onsubmit="updateHiddenField()">
                             {% csrf_token %}
-                            <textarea name="description" rows="7" class="form-control" placeholder="Description.."></textarea>
+                            <textarea maxlength="250" name="description" rows="7" class="form-control" placeholder="Description.."></textarea>
                             <div class="form-heading">References</div>
                             <div class="clone-to reference-container">
                                 <div class="clone-from">
@@ -89,7 +89,7 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <input type="text" name="descriptions" class="form-control" placeholder="Reference description.." required>
+                                                <input maxlength="25" type="text" name="descriptions" class="form-control" placeholder="Reference description.." required>
                                             </div>
                                         </div>
                                     </div>

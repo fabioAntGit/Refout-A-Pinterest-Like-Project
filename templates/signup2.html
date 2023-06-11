@@ -60,11 +60,11 @@
             <form method="POST" action="">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="username">Username</label>
+                    <label for="username" maxlength="20">Username</label>
                     <input class="form-control" type="text" name="username" required="required" placeholder="Enter your username">
                 </div>
                 <div class="form-group">
-                    <label for="username">Email</label>
+                    <label for="username" maxlength="100">Email</label>
                     <input class="form-control" type="email" name="email" required="required" placeholder="Enter your email">
                 </div>
                 <div class="form-group">

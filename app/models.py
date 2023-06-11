@@ -15,7 +15,7 @@ class Profile(models.Model):
     country = models.CharField(max_length=50, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     profile_picture= models.ImageField(default='blank-profile-picture.jpg', upload_to='profile_pictures/')
-    profile_banner= models.ImageField(default='blank-profile-picture.jpg', upload_to='profile_pictures/')
+    profile_banner= models.ImageField(default='blank-banner-picture.jpg', upload_to='profile_pictures/')
     bio = models.TextField(blank=True)
 
 

@@ -131,22 +131,19 @@
                     </div>
                     <div>
                         <h6>Username:</h6>
-                        <input class="settings-input" type="text " id="username" name="username"
+                        <input maxlength="20" class="settings-input" type="text " id="username" name="username"
                             value="{{ user.username }}">
                         <h6>Biography:</h6>
-                        <input class="settings-input" type="text" id="bio" name="bio"
+                        <input maxlength="150" class="settings-input" type="text" id="bio" name="bio"
                             value="{{ user_profile.bio|default:'' }}">
                         <h6>First Name:</h6>
-                        <input class="settings-input" type="text" id="first_name" name="first_name"
+                        <input maxlength="15" class="settings-input" type="text" id="first_name" name="first_name"
                             value="{{ user_profile.first_name|default:'' }}">
                         <h6>Last Name:</h6>
-                        <input class="settings-input" type="text" id="last_name" name="last_name"
+                        <input maxlength="15" class="settings-input" type="text" id="last_name" name="last_name"
                             value="{{ user_profile.last_name|default:'' }}">
                         <h6>Email:</h6>
-                        <input class="settings-input" type="text" id="email" name="email" value="{{ user.email }}">
-                        <h6>Country:</h6>
-                        <input class="settings-input" type="text" id="country" name="country"
-                            value="{{ user_profile.country|default:'' }}">
+                        <input maxlength="50" class="settings-input" type="text" id="email" name="email" value="{{ user.email }}">
                         </br>
                         </br>
                     </div>

@@ -144,7 +144,7 @@
                     <form id="comment-form" method="POST" action="{% url 'app:add_comment' post.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="post_id" value="{{ post.id }}">
-                        <textarea name="text" id="comment-text" rows="2" class="form-control" placeholder="Type a comment.."></textarea>
+                        <textarea maxlength="250" name="text" id="comment-text" rows="2" class="form-control" placeholder="Type a comment.."></textarea>
 
                         <div class="buttons d-flex justify-content-between align-items-center">
                             <button class="btn btn-main" id="submit-button" type="submit">SUBMIT</button></form>
@@ -208,7 +208,7 @@
                         </div>
                         <div class="modal-body">
                             <label  for="post-description">Description:</label>
-                            <textarea rows="3" style="margin-bottom: 35px;" type="text" id="post-description" name="description" value="{{ post.description }}" class="form-control descriptionedit" placeholder="">{{ post.description }}</textarea>
+                            <textarea maxlength="250" rows="3" style="margin-bottom: 35px;" type="text" id="post-description" name="description" value="{{ post.description }}" class="form-control descriptionedit" placeholder="">{{ post.description }}</textarea>
             
                             <div class="category-container">
                                 {% if referencias %}
@@ -236,7 +236,7 @@
                                         </select>
                                                                                  
                                         </div>
-                                        <input style="margin-top: 5px;" type="text" id="description{{ referencia.id }}" name="description{{ referencia.id }}" value="{{ referencia.description }}" class="form-control">
+                                        <input maxlength="20" style="margin-top: 5px;" type="text" id="description{{ referencia.id }}" name="description{{ referencia.id }}" value="{{ referencia.description }}" class="form-control">
                                         
                                     </div>
                                     {% endfor %}
