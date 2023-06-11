@@ -780,7 +780,7 @@ def password_reset(request):
                 'token': default_token_generator.make_token(user),
             })
             send_mail(mail_subject, message, 'refoutapp@gmail.com', [email])
-            return redirect('password_reset_done')
+            return redirect('app:signin')
         except User.DoesNotExist:
             pass
     return render(request, 'forgot_password.html')
