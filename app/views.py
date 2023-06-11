@@ -31,15 +31,15 @@ from django.contrib.messages import get_messages
 
 @login_required
 def error_404(request,exception):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     return render(request, '404.html')
 
 
 @login_required
 def index(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user_object = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_object)
 
@@ -63,8 +63,8 @@ def index(request):
 
 @login_required
 def load_more_posts_follow(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user_profile = request.user.profile
     limit = int(request.GET.get('limit', 24))
     offset = int(request.GET.get('offset', 0))
@@ -88,8 +88,8 @@ def load_more_posts_follow(request):
 
 @login_required
 def load_more_posts(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user_object = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_object)
     current_user_profile = request.user.profile
@@ -114,8 +114,8 @@ def load_more_posts(request):
 
 @login_required
 def indexall(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user_object = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_object)
     current_user_profile = request.user.profile
@@ -128,8 +128,8 @@ from django.http import JsonResponse
 
 @login_required
 def like_post(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         result = ''
         post_id = request.POST.get('postid')
@@ -148,8 +148,8 @@ def like_post(request):
     return JsonResponse({'error': 'Invalid request'})
 
 def signup(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -182,16 +182,16 @@ def signup(request):
     
 @login_required
 def logout(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     auth.logout(request)
     return redirect('signin?next=/')
 
 
 @login_required
 def change_password(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     if request.method == 'POST':
         old_password = request.POST['old_password']
         new_password = request.POST['new_password']
@@ -221,8 +221,8 @@ def change_password(request):
 
 
 def signin(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -237,8 +237,8 @@ def signin(request):
 
 @login_required
 def notifications(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user_profile = Profile.objects.get(user=request.user)
     notifications = Notification.objects.filter(recipient=user_profile)
 
@@ -251,8 +251,8 @@ def notifications(request):
 
 @login_required
 def delete_notification(request, notification_id):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user_profile = Profile.objects.get(user=request.user)
     notifications = Notification.objects.filter(recipient=user_profile)
 
@@ -267,8 +267,8 @@ def delete_notification(request, notification_id):
 
 @login_required
 def profile_more (request, pk):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user_object=User.objects.get(username=pk)
     user_profile=Profile.objects.get(user=user_object)
 
@@ -283,8 +283,8 @@ def profile_more (request, pk):
 
 @login_required
 def profile(request, pk):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user_object = User.objects.get(username=pk)
     user_profile = Profile.objects.get(user=user_object)
     user = request.user
@@ -333,8 +333,8 @@ def profile(request, pk):
 
 @login_required
 def upload(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user_profile = Profile.objects.get(user=request.user)
 
     if request.method == 'POST':
@@ -358,8 +358,8 @@ def upload(request):
 
 @login_required
 def follow(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     if request.method == 'POST':
         
         follower_id = request.POST.get('follower')
@@ -388,16 +388,16 @@ def follow(request):
 
 @login_required
 def search(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user_profile = Profile.objects.get(user=request.user)
     return render(request, 'search2.html', {'user_profile': user_profile})
 
 
 @login_required
 def search_results(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
         user = request.POST.get('user')
         qs = Profile.objects.filter(user__username__icontains=user)
@@ -418,8 +418,8 @@ def search_results(request):
 
 @login_required
 def post_detail(request, uuid):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     post = get_object_or_404(Post, id=uuid)
     user_profile = Profile.objects.get(user=request.user)
     comments = Comment.objects.filter(post=post).order_by('-created')
@@ -434,8 +434,8 @@ def post_detail(request, uuid):
 
 @login_required
 def save_changes(request, post_id):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     if request.method == 'POST':
         descriptionpost = request.POST.get('description')
 
@@ -459,8 +459,8 @@ def save_changes(request, post_id):
 
 @login_required
 def delete_reference(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     if request.method == 'POST':
         reference_id = request.POST.get('reference_id')
         delete_reference = request.POST.get('delete_reference')
@@ -480,8 +480,8 @@ def delete_reference(request):
 
 @login_required
 def add_comment(request, post_id):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     if request.method == 'POST':
         post = get_object_or_404(Post, pk=post_id)
         text = request.POST.get('text')
@@ -515,8 +515,8 @@ def add_comment(request, post_id):
 
 @login_required
 def settings(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     user = request.user
     user_profile = Profile.objects.get(user=user)
 
@@ -571,8 +571,8 @@ def settings(request):
 
 
 def verify_references(request, post_id):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     post = get_object_or_404(Post, id=post_id)
     user = request.user
     referer = request.META.get('HTTP_REFERER')
@@ -593,8 +593,8 @@ def verify_references(request, post_id):
 
 @login_required
 def report_post(request, uuid):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     post = get_object_or_404(Post, id=uuid)
     if request.method == 'POST':
         category = request.POST.get('category')
@@ -620,8 +620,8 @@ def report_post(request, uuid):
         return render(request, 'post2.html', context)
 
 def delete_comment(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     if request.method == 'POST' and request.user.is_authenticated:
         comment_id = request.POST.get('comment_id')
         try:
@@ -634,8 +634,8 @@ def delete_comment(request):
     return JsonResponse({'success': False})
 
 def delete_comment(request):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     if request.method == 'POST' and request.user.is_authenticated:
         comment_id = request.POST.get('comment_id')
         try:
@@ -652,8 +652,8 @@ def delete_comment(request):
 
 @login_required
 def delete_post(request, uuid):
-    storage = get_messages(request)
-    storage.used = True
+    for message in messages.get_messages(request):
+        message.delete()
     post = get_object_or_404(Post, id=uuid)
     user = request.user
     if request.method == 'POST':
