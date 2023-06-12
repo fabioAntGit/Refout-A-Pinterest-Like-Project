@@ -88,6 +88,7 @@
                         <div style="cursor: default;" class="text"><strong>{{ user_profile.get_likes_recieved_no }}</strong> likes</div>{% if request.user.is_authenticated and user_profile.user == request.user %}
                     </div>
 
+                    <div class="text">{{ user_profile.bio }}</div>
 
                     <div class="button"><a href="/settings" class="btn btn-main">Settings</a></div>{% else %}
                     <input type="hidden" name="follower" value="{{ request.user.profile.id }}">
@@ -96,7 +97,6 @@
             </div>
 
             <br>
-            <div class="text">{{ user_profile.bio }}</div>
             <div class="button"><button class="btn btn-main" type="submit" id="follow-button">{{ text }}</button> </div>{% endif %}
             </form>
         </div>
