@@ -90,7 +90,7 @@
                                     <img src="{{user_profile.profile_picture.url}}" alt="">
                                 </div>
                                 <div>
-                                    <a href="/profile/{{user_profile.user.username}}">
+                                    <a href="/profile/{{post.user}}">
                                         <div class="heading">@{{post.user}}</div>
                                     </a>
                                     <div class="text">{{post.created}}</div>
@@ -98,14 +98,14 @@
                             </div>
                             <div>
                                 
-                                <button class="like-button" id="like-button-{{ post.id }}" value="{{ post.id }}">
+                                <a class="like-button" id="like-button-{{ post.id }}" value="{{ post.id }}">
                                     {% if request.user.profile in post.likes.all %}
                                     <img src="{% static 'assets/images/icons/heartcomplete.svg' %}" alt="">
                                     {% else %}
                                     <img src="{% static 'assets/images/icons/heart.svg' %}" alt="">
                                     {% endif %}
                                     <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span>
-                                </button>
+                                </a>
 
                             </div>
                         </div>
