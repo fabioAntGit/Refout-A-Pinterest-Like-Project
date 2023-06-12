@@ -145,12 +145,13 @@ def like_post(request):
             post.likes.add(profile)
             result = post.likes.count()
 
-            Notification.objects.create(
-                recipient=post.user,
-                sender=profile,
-                notification_type='like',
-                post=post
-            )
+            if profile != post.user:
+                Notification.objects.create(
+                    recipient=post.user,
+                    sender=profile,
+                    notification_type='like',
+                    post=post
+                )
 
         return JsonResponse({'result': result})
 

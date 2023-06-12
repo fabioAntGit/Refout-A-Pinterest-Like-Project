@@ -27,7 +27,8 @@ class ReportAdmin(admin.ModelAdmin):
 
     def display_image(self, obj):
         image_url = obj.post.image.url if obj.post.image else ''
-        return format_html('<img style="border-radius:30px" src="{}"/>', image_url)
+        post_change_url = reverse('admin:app_post_change', args=(obj.post.id,))
+        return format_html('<a href="{}"><img style="border-radius:30px" src="{}"/></a>', post_change_url, image_url)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
