@@ -3,12 +3,11 @@ const searchForm = document.getElementById('search-form')
 const searchInput = document.getElementById('search-input')
 const resultsBox = document.getElementById('results-box')
 
-print("test")
 const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
 const sendSearchData = (user) => {
     $.ajax({
         type: 'POST',
-        url: 'search_results',
+        url: 'https://refout.herokuapp.com/search_results',
         data: {
             'csrfmiddlewaretoken': csrf,
             'user': user
