@@ -541,7 +541,6 @@ def settings(request):
         user_profile.first_name = request.POST['first_name']
         user_profile.last_name = request.POST['last_name']
         user_profile.bio = request.POST['bio']
-        user_profile.country = request.POST['country']
         image_file = request.FILES.get('image')
         banner_image_file = request.FILES.get('banner_image')
 
