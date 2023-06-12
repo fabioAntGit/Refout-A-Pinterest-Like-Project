@@ -2,7 +2,7 @@ const url = window.location.href
 const searchForm = document.getElementById('search-form')
 const searchInput = document.getElementById('search-input')
 const resultsBox = document.getElementById('results-box')
-
+console.log("test")
 const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
 const sendSearchData = (user) => {
     $.ajax({
