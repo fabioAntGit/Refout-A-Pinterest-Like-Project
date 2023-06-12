@@ -132,9 +132,25 @@ def like_post(request):
         if post.likes.filter(id=profile.id).exists():
             post.likes.remove(profile)
             result = post.likes.count()
+
+            Notification.objects.filter(
+                recipient=post.user,
+                sender=profile,
+                notification_type='like',
+                post=post
+            ).delete()
+            
+            
         else:
             post.likes.add(profile)
             result = post.likes.count()
+
+            Notification.objects.create(
+                recipient=post.user,
+                sender=profile,
+                notification_type='like',
+                post=post
+            )
 
         return JsonResponse({'result': result})
 
